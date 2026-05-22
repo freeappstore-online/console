@@ -106,7 +106,7 @@ export function RolesManager({ appId, getToken }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-5 sm:p-6">
+    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6">
       <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-4">Roles</h3>
 
       {error && (
@@ -118,7 +118,7 @@ export function RolesManager({ appId, getToken }: Props) {
       {/* Role descriptions */}
       <div className="mb-5 grid gap-2 sm:grid-cols-2">
         {Object.entries(ROLE_DESCRIPTIONS).map(([role, desc]) => (
-          <div key={role} className="rounded-lg border border-[var(--line)] bg-[var(--glass)] px-3 py-2">
+          <div key={role} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-2">
             <span className="text-xs font-semibold text-[var(--ink)] capitalize">{role}</span>
             <p className="text-xs text-[var(--muted)] mt-0.5">{desc}</p>
           </div>
@@ -138,7 +138,7 @@ export function RolesManager({ appId, getToken }: Props) {
             return (
               <div
                 key={key}
-                className="flex items-center justify-between gap-3 rounded-lg border border-[var(--line)] bg-[var(--glass)] px-3 py-2"
+                className="flex items-center justify-between gap-3 rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-2"
               >
                 <div className="min-w-0">
                   <span className="text-sm font-medium text-[var(--ink)] truncate block">{r.user_id}</span>
@@ -176,7 +176,7 @@ export function RolesManager({ appId, getToken }: Props) {
             placeholder="User ID (GitHub login)"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            className="flex-1 rounded-lg border border-[var(--line-strong)] bg-[var(--glass)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--muted)] min-h-[40px]"
+            className="flex-1 rounded-lg border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--muted)] min-h-[40px]"
           />
           {useCustom ? (
             <input
@@ -184,13 +184,13 @@ export function RolesManager({ appId, getToken }: Props) {
               placeholder="Custom role name"
               value={customRole}
               onChange={(e) => setCustomRole(e.target.value)}
-              className="w-full sm:w-40 rounded-lg border border-[var(--line-strong)] bg-[var(--glass)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--muted)] min-h-[40px]"
+              className="w-full sm:w-40 rounded-lg border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--muted)] min-h-[40px]"
             />
           ) : (
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full sm:w-40 rounded-lg border border-[var(--line-strong)] bg-[var(--glass)] px-3 py-2 text-sm text-[var(--ink)] min-h-[40px]"
+              className="w-full sm:w-40 rounded-lg border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-2 text-sm text-[var(--ink)] min-h-[40px]"
             >
               {BUILTIN_ROLES.map((r) => (
                 <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>

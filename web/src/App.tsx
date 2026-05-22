@@ -127,7 +127,7 @@ const TABS: { key: View; label: string }[] = [
 function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate: (v: View) => void }) {
   return (
     <header className="sticky top-0 z-30">
-      <div className="border-b border-[var(--line)] bg-[var(--glass-strong)] backdrop-blur-xl">
+      <div className="border-b border-[var(--line)] bg-[var(--panel)] backdrop-blur-xl">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 flex h-11 items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -156,7 +156,7 @@ function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate
           </div>
         </div>
       </div>
-      <div className="border-b border-[var(--line)] bg-[var(--glass)]">
+      <div className="border-b border-[var(--line)] bg-[var(--panel)]">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <nav className="flex gap-0 -mb-px overflow-x-auto scrollbar-none">
             {TABS.map((tab) => (
@@ -182,7 +182,7 @@ function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate
 function Dashboard({ user, apps, onOpenApp, onPublish }: { user: User; apps: AppEntry[]; onOpenApp: (id: string) => void; onPublish: () => void }) {
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-4">
           <Avatar user={user} size={56} />
           <div>
@@ -225,7 +225,7 @@ function Dashboard({ user, apps, onOpenApp, onPublish }: { user: User; apps: App
               <button
                 key={a.id}
                 onClick={() => onOpenApp(a.id)}
-                className="text-left rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4 hover:bg-[var(--glass-hover)] shadow-sm min-h-[5rem]"
+                className="text-left rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4 hover:bg-[var(--panel-hover)] shadow-sm min-h-[5rem]"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -241,7 +241,7 @@ function Dashboard({ user, apps, onOpenApp, onPublish }: { user: User; apps: App
         )}
       </div>
 
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
         <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-4">Quick Links</h3>
         <div className="grid gap-2 sm:grid-cols-3">
           <QuickLink href="https://freeappstore.online/docs" label="SDK Docs" desc="Auth, KV, rooms, proxy" />
@@ -259,7 +259,7 @@ function PublishView() {
       <h2 className="display-font text-2xl font-bold text-[var(--ink)]">Publish an App</h2>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
           <h3 className="display-font text-lg font-bold text-[var(--ink)] mb-2">VibeCode (AI Builder)</h3>
           <p className="text-sm text-[var(--muted)] mb-4">
             Describe your app in plain English and AI builds it for you. No coding required.
@@ -274,7 +274,7 @@ function PublishView() {
           </a>
         </div>
 
-        <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
           <h3 className="display-font text-lg font-bold text-[var(--ink)] mb-2">CLI (Local Dev)</h3>
           <p className="text-sm text-[var(--muted)] mb-4">
             Build locally with React + Vite, then publish via the CLI.
@@ -295,7 +295,7 @@ cd my-app && pnpm dev`}
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
         <h3 className="display-font text-lg font-bold text-[var(--ink)] mb-2">Publisher Portal</h3>
         <p className="text-sm text-[var(--muted)] mb-4">
           Already have an app? Submit it for review and get listed on the store.
@@ -304,7 +304,7 @@ cd my-app && pnpm dev`}
           href="https://publish.freeappstore.online"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2 text-sm font-medium text-[var(--ink)] hover:bg-[var(--glass-hover)] no-underline"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2 text-sm font-medium text-[var(--ink)] hover:bg-[var(--panel-hover)] no-underline"
         >
           Open Publisher Portal
         </a>
@@ -318,7 +318,7 @@ function Settings() {
   return (
     <div className="space-y-8">
       <h2 className="display-font text-2xl font-bold text-[var(--ink)]">Settings</h2>
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
         <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-4">Theme</h3>
         <div className="flex gap-2">
           {(['system', 'light', 'dark'] as const).map((t) => (
@@ -396,7 +396,7 @@ function UILibraryView() {
 
 function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4">
+    <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4">
       <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">{label}</p>
       <p className="mt-1 display-font text-2xl font-bold text-[var(--ink)]">{value}</p>
     </div>
@@ -405,7 +405,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
 
 function QuickLink({ href, label, desc }: { href: string; label: string; desc: string }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[var(--line)] p-3 hover:bg-[var(--glass-hover)] no-underline block">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[var(--line)] p-3 hover:bg-[var(--panel-hover)] no-underline block">
       <p className="font-semibold text-sm text-[var(--ink)]">{label}</p>
       <p className="text-xs text-[var(--muted)] mt-0.5">{desc}</p>
     </a>
@@ -414,7 +414,7 @@ function QuickLink({ href, label, desc }: { href: string; label: string; desc: s
 
 function Section({ title, code, children }: { title: string; code: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] overflow-hidden">
+    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--line)]">
         <h3 className="text-lg font-bold text-[var(--ink)]">{title}</h3>
         <code className="text-xs text-[var(--muted)] font-mono">{code}</code>

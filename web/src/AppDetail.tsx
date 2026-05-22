@@ -59,14 +59,14 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
       <button onClick={onBack} className="text-sm text-[var(--accent)] font-medium hover:underline min-h-[44px] flex items-center">&larr; Back</button>
 
       {/* Hero */}
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-5 sm:p-6">
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6">
         <h2 className="display-font text-xl sm:text-2xl font-bold text-[var(--ink)]">{appName}</h2>
         <p className="mt-1 text-sm text-[var(--muted)] font-mono truncate">{appId}.freeappstore.online</p>
         <div className="mt-4 flex gap-2.5 flex-wrap">
           <a href={appUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 no-underline min-h-[44px]">
             Open App
           </a>
-          <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2.5 text-sm font-medium text-[var(--ink)] hover:bg-[var(--glass-hover)] no-underline min-h-[44px]">
+          <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2.5 text-sm font-medium text-[var(--ink)] hover:bg-[var(--panel-hover)] no-underline min-h-[44px]">
             Source
           </a>
         </div>
@@ -74,7 +74,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
 
       {/* Deploy History */}
       {deploys.length > 0 && (
-        <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-5 sm:p-6">
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6">
           <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">Recent Deploys</h3>
           <div className="space-y-2">
             {deploys.map((d) => (
@@ -83,7 +83,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
                 href={d.html_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg hover:bg-[var(--glass-hover)] no-underline min-h-[44px]"
+                className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg hover:bg-[var(--panel-hover)] no-underline min-h-[44px]"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
@@ -105,11 +105,11 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
       {/* Stats */}
       {!loading && analytics && (
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4">
+          <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4">
             <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">Active Users (30d)</p>
             <p className="mt-1 display-font text-2xl font-bold text-[var(--ink)]">{analytics.activeUsers30d}</p>
           </div>
-          <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4">
+          <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4">
             <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">Total Events</p>
             <p className="mt-1 display-font text-2xl font-bold text-[var(--ink)]">{analytics.totalEvents}</p>
           </div>
@@ -146,7 +146,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
       </div>
 
       {/* Useful links */}
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
         <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">Links</h3>
         <div className="space-y-2">
           <LinkRow href={appUrl} label="Live app" />
@@ -173,7 +173,7 @@ function formatTimeAgo(date: Date): string {
 
 function InfoCard({ label, value, href, mono }: { label: string; value: string; href?: string; mono?: boolean }) {
   return (
-    <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4">
+    <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4">
       <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">{label}</p>
       {href ? (
         <a href={href} target="_blank" rel="noopener noreferrer" className="mt-1 text-sm text-[var(--accent)] font-medium block">{value}</a>
@@ -186,7 +186,7 @@ function InfoCard({ label, value, href, mono }: { label: string; value: string; 
 
 function FeatureCard({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-3">
+    <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-3">
       <p className="font-semibold text-sm text-[var(--ink)]">{title}</p>
       <p className="text-xs text-[var(--muted)] mt-0.5">{desc}</p>
     </div>
