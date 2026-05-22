@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { initApp } from '@freeappstore/sdk'
 import type { User } from '@freeappstore/sdk'
 import { useAuth, useTheme } from '@freeappstore/sdk/hooks'
-import { Avatar, ThemeToggle } from '@freeappstore/sdk/ui'
+import { Avatar, SignInButton, ThemeToggle, ProfileMenu, ProfilePage, FasShell } from '@freeappstore/sdk/ui'
 import { AppDetail } from './AppDetail'
 
 const fas = initApp({ appId: 'console' })
@@ -348,15 +348,47 @@ function UILibraryView() {
       <div>
         <h2 className="display-font text-2xl font-bold text-[var(--ink)]">UI Component Library</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Live preview of <code className="text-xs bg-[var(--panel)] px-1.5 py-0.5 rounded">@freeappstore/sdk/ui</code> components.
+          Live preview of all <code className="text-xs bg-[var(--panel)] px-1.5 py-0.5 rounded">@freeappstore/sdk/ui</code> components.
         </p>
       </div>
+
       <Section title="Avatar" code="import { Avatar } from '@freeappstore/sdk/ui'">
         <Row label="With avatar"><Avatar user={mockUser} size={32} /><Avatar user={mockUser} size={48} /><Avatar user={mockUser} size={64} /></Row>
         <Row label="Fallback"><Avatar user={noAvatar} size={32} /><Avatar user={null} size={32} /></Row>
       </Section>
+
       <Section title="ThemeToggle" code="import { ThemeToggle } from '@freeappstore/sdk/ui'">
         <Row label="Interactive"><ThemeToggle /><span className="text-xs text-[var(--muted)]">Cycles: system, light, dark</span></Row>
+      </Section>
+
+      <Section title="SignInButton" code="import { SignInButton } from '@freeappstore/sdk/ui'">
+        <Row label="Default"><SignInButton app={fas} /></Row>
+        <Row label="Custom label"><SignInButton app={fas} label="Get started" /></Row>
+      </Section>
+
+      <Section title="ProfileMenu" code="import { ProfileMenu } from '@freeappstore/sdk/ui'">
+        <Row label="Live (requires sign-in)">
+          <ProfileMenu app={fas} />
+          <span className="text-xs text-[var(--muted)]">Sign in to see the avatar dropdown</span>
+        </Row>
+      </Section>
+
+      <Section title="ProfilePage" code="import { ProfilePage } from '@freeappstore/sdk/ui'">
+        <div className="border border-[var(--line)] rounded-xl overflow-hidden max-h-[500px] overflow-y-auto">
+          <ProfilePage app={fas} />
+        </div>
+      </Section>
+
+      <Section title="FasShell" code="import { FasShell } from '@freeappstore/sdk/ui'">
+        <div className="border border-[var(--line)] rounded-xl overflow-hidden" style={{ height: 300 }}>
+          <div style={{ transform: 'scale(0.6)', transformOrigin: 'top left', width: '166.67%', height: '166.67%' }}>
+            <FasShell app={fas} appName="Demo App">
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted)' }}>
+                Your app content goes here
+              </div>
+            </FasShell>
+          </div>
+        </div>
       </Section>
     </div>
   )
