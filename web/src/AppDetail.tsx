@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { RolesManager } from './RolesManager'
+import { SecretsManager } from './SecretsManager'
 
 const API_BASE = 'https://api.freeappstore.online/v1'
 
@@ -119,6 +120,9 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
       {/* Roles */}
       <RolesManager appId={appId} getToken={getToken} />
 
+      {/* API Proxy & Secrets */}
+      <SecretsManager appId={appId} getToken={getToken} />
+
       {/* Info grid */}
       <div>
         <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">App Info</h3>
@@ -141,7 +145,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
           <FeatureCard title="Collections" desc="Firestore-style document database" />
           <FeatureCard title="Counters" desc="Atomic shared counters (votes, views)" />
           <FeatureCard title="Rooms" desc="WebSocket real-time (25 peers/room)" />
-          <FeatureCard title="Proxy" desc="Secret-injecting API proxy" />
+          <FeatureCard title="Proxy" desc="Secret-injecting API proxy (manage above)" />
         </div>
       </div>
 
