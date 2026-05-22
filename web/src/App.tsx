@@ -3,10 +3,11 @@ import { initApp } from '@freeappstore/sdk'
 import type { User } from '@freeappstore/sdk'
 import { useAuth, useTheme } from '@freeappstore/sdk/hooks'
 import { Avatar, ThemeToggle } from '@freeappstore/sdk/ui'
+import { AppDetail } from './AppDetail'
 
 const fas = initApp({ appId: 'console' })
 
-type View = 'dashboard' | 'app-detail' | 'settings' | 'ui-library'
+type View = 'dashboard' | 'app-detail' | 'publish' | 'settings' | 'ui-library'
 
 interface AppEntry {
   id: string
@@ -72,15 +73,17 @@ export default function App() {
       <Header user={user} view={view} onNavigate={setView} />
       <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
         {view === 'dashboard' && (
-          <Dashboard user={user} apps={apps} onOpenApp={openAppDetail} />
+          <Dashboard user={user} apps={apps} onOpenApp={openAppDetail} onPublish={() => setView('publish')} />
         )}
         {view === 'app-detail' && selectedAppId && (
-          <AppDetailView
+          <AppDetail
             appId={selectedAppId}
             appName={apps.find((a) => a.id === selectedAppId)?.name ?? selectedAppId}
+            getToken={() => fas.auth.token}
             onBack={() => setView('dashboard')}
           />
         )}
+        {view === 'publish' && <PublishView />}
         {view === 'settings' && <Settings />}
         {view === 'ui-library' && <UILibraryView />}
       </main>
@@ -116,6 +119,7 @@ function Landing() {
 
 const TABS: { key: View; label: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
+  { key: 'publish', label: 'Publish' },
   { key: 'settings', label: 'Settings' },
   { key: 'ui-library', label: 'UI Library' },
 ]
@@ -180,7 +184,7 @@ function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate
   )
 }
 
-function Dashboard({ user, apps, onOpenApp }: { user: User; apps: AppEntry[]; onOpenApp: (id: string) => void }) {
+function Dashboard({ user, apps, onOpenApp, onPublish }: { user: User; apps: AppEntry[]; onOpenApp: (id: string) => void; onPublish: () => void }) {
   return (
     <div className="space-y-8">
       <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6 shadow-[var(--shadow-card)]">
@@ -202,14 +206,12 @@ function Dashboard({ user, apps, onOpenApp }: { user: User; apps: AppEntry[]; on
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="display-font text-xl font-bold text-[var(--ink)]">Your Apps</h3>
-          <a
-            href="https://create.freeappstore.online"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 no-underline"
+          <button
+            onClick={onPublish}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
           >
-            + Create New App
-          </a>
+            + Publish New App
+          </button>
         </div>
 
         {apps.length === 0 ? (
@@ -251,33 +253,61 @@ function Dashboard({ user, apps, onOpenApp }: { user: User; apps: AppEntry[]; on
   )
 }
 
-function AppDetailView({ appId, appName, onBack }: { appId: string; appName: string; onBack: () => void }) {
-  const appUrl = `https://${appId}.freeappstore.online`
-  const repoUrl = `https://github.com/freeappstore-online/${appId}`
-
+function PublishView() {
   return (
-    <div className="space-y-6">
-      <button onClick={onBack} className="text-sm text-[var(--accent)] font-medium hover:underline">&larr; Back to Dashboard</button>
+    <div className="space-y-8">
+      <h2 className="display-font text-2xl font-bold text-[var(--ink)]">Publish an App</h2>
 
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
-        <h2 className="display-font text-2xl font-bold text-[var(--ink)]">{appName}</h2>
-        <p className="mt-1 text-sm text-[var(--muted)] font-mono">{appId}.freeappstore.online</p>
-
-        <div className="mt-4 flex gap-3 flex-wrap">
-          <a href={appUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 no-underline">
-            Open App
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+          <h3 className="display-font text-lg font-bold text-[var(--ink)] mb-2">VibeCode (AI Builder)</h3>
+          <p className="text-sm text-[var(--muted)] mb-4">
+            Describe your app in plain English and AI builds it for you. No coding required.
+          </p>
+          <a
+            href="https://create.freeappstore.online"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 no-underline"
+          >
+            Open VibeCode
           </a>
-          <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2 text-sm font-medium text-[var(--ink)] hover:bg-[var(--glass-hover)] no-underline">
-            View Source
+        </div>
+
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+          <h3 className="display-font text-lg font-bold text-[var(--ink)] mb-2">CLI (Local Dev)</h3>
+          <p className="text-sm text-[var(--muted)] mb-4">
+            Build locally with React + Vite, then publish via the CLI.
+          </p>
+          <pre className="rounded-lg bg-[var(--panel)] border border-[var(--line)] p-3 text-xs font-mono text-[var(--ink)] overflow-x-auto mb-3">
+{`npm i -g @freeappstore/cli
+fas create my-app
+cd my-app && pnpm dev`}
+          </pre>
+          <a
+            href="https://freeappstore.online/get-started"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-[var(--accent)] font-medium hover:underline no-underline"
+          >
+            Full guide &rarr;
           </a>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <InfoCard label="Subdomain" value={`${appId}.freeappstore.online`} mono />
-        <InfoCard label="Source" value={`freeappstore-online/${appId}`} href={repoUrl} />
-        <InfoCard label="License" value="MIT" />
-        <InfoCard label="Deploy" value="Push to main = auto-deploy" />
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--glass-strong)] p-6">
+        <h3 className="display-font text-lg font-bold text-[var(--ink)] mb-2">Publisher Portal</h3>
+        <p className="text-sm text-[var(--muted)] mb-4">
+          Already have an app? Submit it for review and get listed on the store.
+        </p>
+        <a
+          href="https://publish.freeappstore.online"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2 text-sm font-medium text-[var(--ink)] hover:bg-[var(--glass-hover)] no-underline"
+        >
+          Open Publisher Portal
+        </a>
       </div>
     </div>
   )
@@ -337,19 +367,6 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
     <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4">
       <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">{label}</p>
       <p className="mt-1 display-font text-2xl font-bold text-[var(--ink)]">{value}</p>
-    </div>
-  )
-}
-
-function InfoCard({ label, value, href, mono }: { label: string; value: string; href?: string; mono?: boolean }) {
-  return (
-    <div className="rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4">
-      <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">{label}</p>
-      {href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-1 text-sm text-[var(--accent)] font-medium block">{value}</a>
-      ) : (
-        <p className={`mt-1 text-sm text-[var(--ink)] ${mono ? 'font-mono' : ''}`}>{value}</p>
-      )}
     </div>
   )
 }
