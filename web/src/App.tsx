@@ -22,17 +22,17 @@ const API_BASE = 'https://api.freeappstore.online/v1'
 async function fetchApps(token: string | null): Promise<AppEntry[]> {
   if (!token) return []
   try {
-    const res = await fetch(`${API_BASE}/apps`, {
+    const res = await fetch(`${API_BASE}/apps/mine`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!res.ok) return []
-    const data = (await res.json()) as { apps: { id: string; name: string; created_at: number; category?: string | null; description?: string | null }[] }
+    const data = (await res.json()) as { apps: { id: string; ownerLogin: string; createdAt: number; category?: string | null; oneliner?: string | null; store?: string | null }[] }
     return (data.apps ?? []).map((a) => ({
       id: a.id,
-      name: a.name,
-      createdAt: new Date(a.created_at).toISOString(),
+      name: a.id,
+      createdAt: new Date(a.createdAt).toISOString(),
       category: a.category,
-      description: a.description,
+      description: a.oneliner,
     }))
   } catch {
     return []
@@ -128,27 +128,28 @@ function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate
   return (
     <header className="sticky top-0 z-30">
       <div className="border-b border-[var(--line)] bg-[var(--glass-strong)] backdrop-blur-xl">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 flex h-12 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <a href="https://freeappstore.online" className="text-sm font-bold text-[var(--accent)] no-underline hover:opacity-80">
-              Free
-            </a>
-            <nav className="flex items-center gap-3 text-xs font-medium text-[var(--muted)]">
-              <a href="https://freeappstore.online" className="hover:text-[var(--ink)] no-underline">Apps</a>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 flex h-11 items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className="display-font text-sm font-bold text-[var(--ink)] tracking-tight no-underline"
+            >
+              Console
+            </button>
+            <nav className="hidden sm:flex items-center gap-2.5 text-xs font-medium text-[var(--muted)]">
+              <a href="https://freeappstore.online" className="hover:text-[var(--ink)] no-underline">Store</a>
               <a href="https://freeappstore.online/docs" className="hover:text-[var(--ink)] no-underline">Docs</a>
-              <a href="https://freeappstore.online/guidelines" className="hover:text-[var(--ink)] no-underline">Guidelines</a>
               <a href="https://create.freeappstore.online" className="hover:text-[var(--ink)] no-underline">VibeCode</a>
             </nav>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <ThemeToggle />
             {user.avatarUrl && (
               <img src={user.avatarUrl} alt={user.login} className="h-6 w-6 rounded-full ring-1 ring-[var(--line-strong)]" />
             )}
-            <span className="hidden sm:inline text-xs font-medium text-[var(--muted)]">{user.login}</span>
             <button
               onClick={() => fas.auth.signOut()}
-              className="text-xs font-medium text-[var(--muted)] hover:text-[var(--ink)] underline"
+              className="text-xs font-medium text-[var(--muted)] hover:text-[var(--ink)]"
             >
               Sign out
             </button>
@@ -156,19 +157,13 @@ function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate
         </div>
       </div>
       <div className="border-b border-[var(--line)] bg-[var(--glass)]">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="display-font text-base font-bold text-[var(--ink)] tracking-tight py-2 mr-4"
-          >
-            Creator Console
-          </button>
-          <nav className="flex gap-0.5 -mb-px overflow-x-auto">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <nav className="flex gap-0 -mb-px overflow-x-auto scrollbar-none">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => onNavigate(tab.key)}
-                className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                className={`px-3 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px] ${
                   (view === tab.key || (view === 'app-detail' && tab.key === 'dashboard'))
                     ? 'border-[var(--accent)] text-[var(--ink)]'
                     : 'border-transparent text-[var(--muted)] hover:text-[var(--ink)]'
@@ -197,8 +192,8 @@ function Dashboard({ user, apps, onOpenApp, onPublish }: { user: User; apps: App
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <StatCard label="Total Apps" value={apps.length} />
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Apps" value={apps.length} />
         <StatCard label="Platform" value="Free" />
         <StatCard label="License" value="MIT" />
       </div>
@@ -225,16 +220,21 @@ function Dashboard({ user, apps, onOpenApp, onPublish }: { user: User; apps: App
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
             {apps.map((a) => (
               <button
                 key={a.id}
                 onClick={() => onOpenApp(a.id)}
-                className="text-left rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4 hover:bg-[var(--glass-hover)] shadow-sm"
+                className="text-left rounded-xl border border-[var(--line)] bg-[var(--glass)] p-4 hover:bg-[var(--glass-hover)] shadow-sm min-h-[5rem]"
               >
-                <span className="font-semibold text-[var(--ink)]">{a.name}</span>
-                <p className="mt-1 text-xs text-[var(--muted)] font-mono">{a.id}.freeappstore.online</p>
-                {a.category && <p className="mt-1 text-xs text-[var(--muted)]">{a.category}</p>}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="font-semibold text-[var(--ink)] block truncate">{a.name}</span>
+                    <p className="mt-0.5 text-xs text-[var(--muted)] font-mono truncate">{a.id}.freeappstore.online</p>
+                    {a.category && <p className="mt-0.5 text-xs text-[var(--muted)]">{a.category}</p>}
+                  </div>
+                </div>
+                <DeployBadge appId={a.id} />
               </button>
             ))}
           </div>
@@ -431,6 +431,65 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
       <div className="flex items-center gap-3 flex-wrap">{children}</div>
     </div>
   )
+}
+
+interface DeployInfo {
+  status: 'success' | 'failure' | 'in_progress' | 'unknown'
+  updatedAt: string | null
+  url: string | null
+}
+
+function useDeployStatus(appId: string): DeployInfo {
+  const [info, setInfo] = useState<DeployInfo>({ status: 'unknown', updatedAt: null, url: null })
+  useEffect(() => {
+    fetch(`https://api.github.com/repos/freeappstore-online/${appId}/actions/runs?per_page=1&status=completed`, {
+      headers: { Accept: 'application/vnd.github+json' },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        const run = data?.workflow_runs?.[0]
+        if (run) {
+          setInfo({
+            status: run.conclusion === 'success' ? 'success' : 'failure',
+            updatedAt: run.updated_at,
+            url: run.html_url,
+          })
+        }
+      })
+      .catch(() => {})
+  }, [appId])
+  return info
+}
+
+function DeployBadge({ appId }: { appId: string }) {
+  const deploy = useDeployStatus(appId)
+  if (deploy.status === 'unknown') return null
+  const colors = {
+    success: 'bg-[var(--success)] text-white',
+    failure: 'bg-[var(--error)] text-white',
+    in_progress: 'bg-[var(--warning)] text-white',
+  }
+  const labels = { success: 'Live', failure: 'Deploy failed', in_progress: 'Deploying' }
+  const timeAgo = deploy.updatedAt ? formatTimeAgo(new Date(deploy.updatedAt)) : ''
+  return (
+    <div className="flex items-center gap-1.5 mt-1.5">
+      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${colors[deploy.status]}`}>
+        {labels[deploy.status]}
+      </span>
+      {timeAgo && <span className="text-[10px] text-[var(--muted)]">{timeAgo}</span>}
+    </div>
+  )
+}
+
+function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 60) return 'just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
 }
 
 function GitHubIcon() {
