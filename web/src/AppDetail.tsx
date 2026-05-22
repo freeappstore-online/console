@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { RolesManager } from './RolesManager'
 
 const API_BASE = 'https://api.freeappstore.online/v1'
 
@@ -114,6 +115,9 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
           </div>
         </div>
       )}
+
+      {/* Roles */}
+      <RolesManager appId={appId} getToken={getToken} />
 
       {/* Info grid */}
       <div>
