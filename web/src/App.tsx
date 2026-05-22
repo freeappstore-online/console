@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { initApp } from '@freeappstore/sdk'
 import type { User } from '@freeappstore/sdk'
 import { useAuth, useTheme } from '@freeappstore/sdk/hooks'
-import { Avatar, SignInButton, ThemeToggle, ProfileMenu, ProfilePage, FasShell } from '@freeappstore/sdk/ui'
+import { Avatar, SignInButton, ThemeToggle, TextSizeToggle, ProfileMenu, ProfilePage, FasShell } from '@freeappstore/sdk/ui'
 import { AppDetail } from './AppDetail'
 
 const fas = initApp({ appId: 'console' })
@@ -359,6 +359,10 @@ function UILibraryView() {
 
       <Section title="ThemeToggle" code="import { ThemeToggle } from '@freeappstore/sdk/ui'">
         <Row label="Interactive"><ThemeToggle /><span className="text-xs text-[var(--muted)]">Cycles: system, light, dark</span></Row>
+      </Section>
+
+      <Section title="TextSizeToggle" code="import { TextSizeToggle } from '@freeappstore/sdk/ui'">
+        <Row label="Interactive"><TextSizeToggle /><span className="text-xs text-[var(--muted)]">Cycles: default, large, small</span></Row>
       </Section>
 
       <Section title="SignInButton" code="import { SignInButton } from '@freeappstore/sdk/ui'">
