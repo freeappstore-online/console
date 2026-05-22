@@ -72,7 +72,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
           <InfoCard label="Source Code" value={`freeappstore-online/${appId}`} href={repoUrl} />
           <InfoCard label="License" value="MIT — open source" />
           <InfoCard label="Deploy" value="Push to main = auto-deploy" />
-          <InfoCard label="Hosting" value="Cloudflare Pages (edge)" />
+          <InfoCard label="Hosting" value="Cloudflare R2 (edge)" />
           <InfoCard label="Price" value="Free forever" />
         </div>
       </div>
