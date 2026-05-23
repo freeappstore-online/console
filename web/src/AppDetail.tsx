@@ -226,6 +226,8 @@ interface VcqaReport {
 function CodeHealth({ appId }: { appId: string }) {
   const [report, setReport] = useState<VcqaReport | null>(null)
   const [loading, setLoading] = useState(true)
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [badgeError, setBadgeError] = useState(false)
 
   useEffect(() => {
     fetch(`https://freeappstore-host.serge-ivo.workers.dev/apps/${appId}/.vcqa/report.json`)
@@ -252,7 +254,6 @@ function CodeHealth({ appId }: { appId: string }) {
     return 'var(--error, #dc2626)'
   }
 
-  const [expanded, setExpanded] = useState<string | null>(null)
   const activeChecks = report.checks?.filter(c => c.score !== undefined && c.grade !== 'skip') ?? []
   const totalIssues = activeChecks.reduce((n, c) => n + (c.issues?.length ?? 0), 0)
 
@@ -274,13 +275,16 @@ function CodeHealth({ appId }: { appId: string }) {
           <div className="text-2xl font-bold text-[var(--ink)]">{report.score}/100</div>
           <div className="text-xs text-[var(--muted)]">{activeChecks.length} checks · {totalIssues} issues</div>
         </div>
-        <div className="ml-auto">
-          <img
-            src={`https://freeappstore-host.serge-ivo.workers.dev/apps/${appId}/.vcqa/badge.svg`}
-            alt={`vcqa ${report.grade} ${report.score}`}
-            className="h-5"
-          />
-        </div>
+        {!badgeError && (
+          <div className="ml-auto">
+            <img
+              src={`https://freeappstore-host.serge-ivo.workers.dev/apps/${appId}/.vcqa/badge.svg`}
+              alt={`vcqa ${report.grade} ${report.score}`}
+              className="h-5"
+              onError={() => setBadgeError(true)}
+            />
+          </div>
+        )}
       </div>
 
       {activeChecks.length > 0 && (
