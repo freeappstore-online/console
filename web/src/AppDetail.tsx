@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { RolesManager } from './RolesManager'
 import { SecretsManager } from './SecretsManager'
+import { WebhooksManager } from './WebhooksManager'
+import { LogsViewer } from './LogsViewer'
 
 const API_BASE = 'https://api.freeappstore.online/v1'
 
@@ -122,6 +124,12 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
 
       {/* API Proxy & Secrets */}
       <SecretsManager appId={appId} getToken={getToken} />
+
+      {/* Webhooks */}
+      <WebhooksManager appId={appId} getToken={getToken} />
+
+      {/* Logs */}
+      <LogsViewer appId={appId} getToken={getToken} />
 
       {/* Code Health */}
       <CodeHealth appId={appId} />
