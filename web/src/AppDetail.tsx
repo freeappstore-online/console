@@ -238,7 +238,7 @@ function CodeHealth({ appId }: { appId: string }) {
   const [badgeError, setBadgeError] = useState(false)
 
   useEffect(() => {
-    fetch(`https://freeappstore-host.serge-ivo.workers.dev/apps/${appId}/.vcqa/report.json`)
+    fetch(`https://${appId}.freeappstore.online/.vcqa/report.json`)
       .then(r => r.ok ? r.json() : null)
       .then(data => setReport(data as VcqaReport | null))
       .catch(() => {})
@@ -286,7 +286,7 @@ function CodeHealth({ appId }: { appId: string }) {
         {!badgeError && (
           <div className="ml-auto">
             <img
-              src={`https://freeappstore-host.serge-ivo.workers.dev/apps/${appId}/.vcqa/badge.svg`}
+              src={`https://${appId}.freeappstore.online/.vcqa/badge.svg`}
               alt={`vcqa ${report.grade} ${report.score}`}
               className="h-5"
               onError={() => setBadgeError(true)}
