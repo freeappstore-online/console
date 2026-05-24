@@ -220,9 +220,9 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
     setLoading(true)
     setExpanded(null)
     let url = ''
-    if (tab === 'kv') url = `${API_BASE.replace('/v1', '')}/v1/admin/kv?app=${appId}&limit=100`
-    else if (tab === 'collections') url = `${API_BASE.replace('/v1', '')}/v1/admin/collections?app=${appId}&limit=100`
-    else url = `${API_BASE.replace('/v1', '')}/v1/admin/counters?app=${appId}&limit=200`
+    if (tab === 'kv') url = `${API_BASE}/admin/kv?app=${appId}&limit=100`
+    else if (tab === 'collections') url = `${API_BASE}/admin/collections?app=${appId}&limit=100`
+    else url = `${API_BASE}/admin/counters?app=${appId}&limit=200`
 
     try {
       const res = await fetch(url, { headers: headers() })
@@ -240,8 +240,8 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
 
   const deleteItem = async (params: string) => {
     if (!confirm('Delete this item?')) return
-    const base = API_BASE.replace('/v1', '')
-    await fetch(`${base}/v1/admin/${tab === 'collections' ? 'collections' : tab}?${params}`, {
+    const base = API_BASE
+    await fetch(`${base}/admin/${tab === 'collections' ? 'collections' : tab}?${params}`, {
       method: 'DELETE', headers: headers(),
     })
     load()
@@ -250,8 +250,8 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
   const loadKvValue = async (user: string, key: string) => {
     const cacheKey = `${user}:${key}`
     if (valueCache[cacheKey]) return
-    const base = API_BASE.replace('/v1', '')
-    const res = await fetch(`${base}/v1/admin/kv/value?app=${appId}&user=${user}&key=${encodeURIComponent(key)}`, { headers: headers() })
+    const base = API_BASE
+    const res = await fetch(`${base}/admin/kv/value?app=${appId}&user=${user}&key=${encodeURIComponent(key)}`, { headers: headers() })
     if (res.ok) {
       const data = await res.json() as { value: unknown }
       setValueCache(prev => ({ ...prev, [cacheKey]: data.value }))
