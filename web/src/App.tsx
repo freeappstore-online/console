@@ -4,10 +4,11 @@ import type { User } from '@freeappstore/sdk'
 import { useAuth, useTheme } from '@freeappstore/sdk/hooks'
 import { Avatar, SignInButton, ThemeToggle, TextSizeToggle, ProfileMenu, ProfilePage, FasShell } from '@freeappstore/sdk/ui'
 import { AppDetail } from './AppDetail'
+import { ContentAdmin } from './ContentAdmin'
 
 const fas = initApp({ appId: 'console' })
 
-type View = 'dashboard' | 'app-detail' | 'publish' | 'settings' | 'ui-library'
+type View = 'dashboard' | 'app-detail' | 'publish' | 'settings' | 'ui-library' | 'content-admin'
 
 interface AppEntry {
   id: string
@@ -86,6 +87,7 @@ export default function App() {
         {view === 'publish' && <PublishView />}
         {view === 'settings' && <Settings />}
         {view === 'ui-library' && <UILibraryView />}
+        {view === 'content-admin' && <ContentAdmin getToken={() => fas.auth.token} />}
       </main>
     </div>
   )
@@ -122,6 +124,7 @@ const TABS: { key: View; label: string }[] = [
   { key: 'publish', label: 'Publish' },
   { key: 'settings', label: 'Settings' },
   { key: 'ui-library', label: 'UI Library' },
+  { key: 'content-admin', label: 'Admin' },
 ]
 
 function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate: (v: View) => void }) {
