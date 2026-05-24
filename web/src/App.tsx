@@ -34,7 +34,7 @@ async function fetchApps(token: string | null): Promise<AppEntry[]> {
       createdAt: new Date(a.createdAt).toISOString(),
       category: a.category,
       description: a.oneliner,
-    }))
+    })).sort((a, b) => a.id.localeCompare(b.id))
   } catch {
     return []
   }
