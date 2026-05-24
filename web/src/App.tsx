@@ -51,6 +51,9 @@ function parseRoute(): { view: View; appId: string | null } {
   return { view: 'dashboard', appId: null }
 }
 
+// Global setter — assigned by App component on mount.
+let _setRoute: ((r: { view: View; appId: string | null }) => void) | null = null
+
 function navigate(view: View, appId?: string) {
   let path = '/'
   if (view === 'app-detail' && appId) path = `/apps/${appId}`
@@ -59,7 +62,8 @@ function navigate(view: View, appId?: string) {
   else if (view === 'ui-library') path = '/ui-library'
   else if (view === 'content-admin') path = '/admin'
   history.pushState(null, '', path)
-  window.dispatchEvent(new PopStateEvent('popstate'))
+  const next = parseRoute()
+  if (_setRoute) _setRoute(next)
 }
 
 export default function App() {
@@ -67,11 +71,15 @@ export default function App() {
   const [route, setRoute] = useState(parseRoute)
   const [apps, setApps] = useState<AppEntry[]>([])
 
-  // Listen for browser back/forward
+  // Register global setter + listen for browser back/forward
   useEffect(() => {
+    _setRoute = setRoute
     const handler = () => setRoute(parseRoute())
     window.addEventListener('popstate', handler)
-    return () => window.removeEventListener('popstate', handler)
+    return () => {
+      _setRoute = null
+      window.removeEventListener('popstate', handler)
+    }
   }, [])
 
   const view = route.view
