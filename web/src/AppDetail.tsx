@@ -75,7 +75,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
                   : 'text-[var(--muted)] border border-[var(--line)]'
               }`}
             >
-              {t === 'data' ? 'App Data' : 'Overview'}
+              {t === 'data' ? 'Admin' : 'Overview'}
             </button>
           ))}
         </div>

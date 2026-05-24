@@ -164,7 +164,6 @@ const TABS: { key: View; label: string }[] = [
   { key: 'publish', label: 'Publish' },
   { key: 'settings', label: 'Settings' },
   { key: 'ui-library', label: 'UI Library' },
-  { key: 'content-admin', label: 'Admin' },
 ]
 
 function Header({ user, view, onNavigate }: { user: User; view: View; onNavigate: (v: View) => void }) {
