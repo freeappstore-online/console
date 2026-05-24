@@ -202,12 +202,94 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
   )
 }
 
+function isImageUrl(url: string): boolean {
+  try {
+    const u = new URL(url)
+    return /\.(png|jpe?g|gif|webp|svg|avif|ico|bmp)$/i.test(u.pathname)
+  } catch { return false }
+}
+
+/** Render a JSON value with clickable URLs and a copy button. */
+function JsonView({ data, onPreview }: { data: unknown; onPreview: (url: string) => void }) {
+  const json = JSON.stringify(data, null, 2)
+  const [copied, setCopied] = useState(false)
+
+  const copy = () => {
+    navigator.clipboard.writeText(json).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
+  }
+
+  // Split JSON into text segments and URL segments
+  const parts: Array<{ type: 'text' | 'url'; value: string }> = []
+  const urlRe = /https?:\/\/[^\s"',\]})]+/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = urlRe.exec(json)) !== null) {
+    if (m.index > last) parts.push({ type: 'text', value: json.slice(last, m.index) })
+    parts.push({ type: 'url', value: m[0] })
+    last = m.index + m[0].length
+  }
+  if (last < json.length) parts.push({ type: 'text', value: json.slice(last) })
+
+  return (
+    <div className="relative border-t border-[var(--line)]">
+      <button
+        onClick={copy}
+        className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)] z-10"
+      >
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+      <pre className="px-3 py-2 pr-16 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[300px] overflow-auto select-text" style={{ userSelect: 'text', WebkitUserSelect: 'text' }}>
+        {parts.map((p, i) =>
+          p.type === 'url' ? (
+            <a
+              key={i}
+              href={p.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={isImageUrl(p.value) ? (e) => { e.preventDefault(); onPreview(p.value) } : undefined}
+              className="text-[var(--accent)] hover:underline cursor-pointer"
+            >{p.value}</a>
+          ) : (
+            <span key={i}>{p.value}</span>
+          )
+        )}
+      </pre>
+    </div>
+  )
+}
+
+/** Fullscreen preview dialog for images / URLs. */
+function PreviewDialog({ url, onClose }: { url: string; onClose: () => void }) {
+  const isImage = isImageUrl(url)
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="relative max-w-[90vw] max-h-[90vh] bg-[var(--panel-strong)] rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-[var(--line)]">
+          <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-[var(--accent)] truncate hover:underline">{url}</a>
+          <button onClick={onClose} className="text-sm font-bold text-[var(--muted)] hover:text-[var(--ink)] px-2 py-1 min-h-[32px]">✕</button>
+        </div>
+        {isImage ? (
+          <div className="p-4 flex items-center justify-center" style={{ minWidth: 200, minHeight: 200 }}>
+            <img src={url} alt="preview" className="max-w-[80vw] max-h-[75vh] object-contain rounded" />
+          </div>
+        ) : (
+          <iframe src={url} className="w-[80vw] h-[75vh] border-0" title="preview" sandbox="allow-scripts allow-same-origin" />
+        )}
+      </div>
+    </div>
+  )
+}
+
 function AppDataView({ appId, getToken }: { appId: string; getToken: () => string | null }) {
   const [tab, setTab] = useState<'kv' | 'collections' | 'counters'>('kv')
   const [entries, setEntries] = useState<Array<Record<string, unknown>>>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<number | null>(null)
   const [valueCache, setValueCache] = useState<Record<string, unknown>>({})
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   const headers = useCallback((): Record<string, string> => {
     const h: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -285,7 +367,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
                     <button onClick={() => deleteItem(`app=${appId}&user=${e.user_id}&key=${encodeURIComponent(String(e.key))}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
                   </div>
                   {expanded === i && valueCache[cacheKey] !== undefined && (
-                    <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">{JSON.stringify(valueCache[cacheKey], null, 2)}</pre>
+                    <JsonView data={valueCache[cacheKey]} onPreview={setPreviewUrl} />
                   )}
                 </div>
               )
@@ -300,7 +382,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
                     <button onClick={() => deleteItem(`app=${appId}&collection=${e.collection}&id=${e.id}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
                   </div>
                   {expanded === i && (
-                    <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">{JSON.stringify(e.data, null, 2)}</pre>
+                    <JsonView data={e.data} onPreview={setPreviewUrl} />
                   )}
                 </div>
               )
@@ -316,6 +398,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
           })}
         </div>
       )}
+      {previewUrl && <PreviewDialog url={previewUrl} onClose={() => setPreviewUrl(null)} />}
     </div>
   )
 }
