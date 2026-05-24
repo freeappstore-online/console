@@ -40,11 +40,44 @@ async function fetchApps(token: string | null): Promise<AppEntry[]> {
   }
 }
 
+function parseRoute(): { view: View; appId: string | null } {
+  const path = location.pathname
+  const appMatch = path.match(/^\/apps\/([a-z0-9-]+)(?:\/(.+))?$/)
+  if (appMatch) return { view: 'app-detail', appId: appMatch[1] }
+  if (path === '/publish') return { view: 'publish', appId: null }
+  if (path === '/settings') return { view: 'settings', appId: null }
+  if (path === '/ui-library') return { view: 'ui-library', appId: null }
+  if (path === '/admin') return { view: 'content-admin', appId: null }
+  return { view: 'dashboard', appId: null }
+}
+
+function navigate(view: View, appId?: string) {
+  let path = '/'
+  if (view === 'app-detail' && appId) path = `/apps/${appId}`
+  else if (view === 'publish') path = '/publish'
+  else if (view === 'settings') path = '/settings'
+  else if (view === 'ui-library') path = '/ui-library'
+  else if (view === 'content-admin') path = '/admin'
+  history.pushState(null, '', path)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
+
 export default function App() {
   const { user, loading } = useAuth(fas)
-  const [view, setView] = useState<View>('dashboard')
-  const [selectedAppId, setSelectedAppId] = useState<string | null>(null)
+  const [route, setRoute] = useState(parseRoute)
   const [apps, setApps] = useState<AppEntry[]>([])
+
+  // Listen for browser back/forward
+  useEffect(() => {
+    const handler = () => setRoute(parseRoute())
+    window.addEventListener('popstate', handler)
+    return () => window.removeEventListener('popstate', handler)
+  }, [])
+
+  const view = route.view
+  const selectedAppId = route.appId
+
+  const setView = useCallback((v: View) => navigate(v), [])
 
   const reloadApps = useCallback(async () => {
     try { setApps(await fetchApps(fas.auth.token)) } catch {}
@@ -55,8 +88,7 @@ export default function App() {
   }, [user, reloadApps])
 
   const openAppDetail = useCallback((id: string) => {
-    setSelectedAppId(id)
-    setView('app-detail')
+    navigate('app-detail', id)
   }, [])
 
   if (loading) {
@@ -81,7 +113,7 @@ export default function App() {
             appId={selectedAppId}
             appName={apps.find((a) => a.id === selectedAppId)?.name ?? selectedAppId}
             getToken={() => fas.auth.token}
-            onBack={() => setView('dashboard')}
+            onBack={() => navigate('dashboard')}
           />
         )}
         {view === 'publish' && <PublishView />}

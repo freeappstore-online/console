@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { RolesManager } from './RolesManager'
 import { SecretsManager } from './SecretsManager'
 import { WebhooksManager } from './WebhooksManager'
@@ -27,7 +27,10 @@ interface DeployRun {
   name: string
 }
 
+type AppTab = 'overview' | 'data'
+
 export function AppDetail({ appId, appName, getToken, onBack }: Props) {
+  const [appTab, setAppTab] = useState<AppTab>('overview')
   const [analytics, setAnalytics] = useState<AppAnalytics | null>(null)
   const [deploys, setDeploys] = useState<DeployRun[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,7 +62,29 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
 
   return (
     <div className="space-y-6">
-      <button onClick={onBack} className="text-sm text-[var(--accent)] font-medium hover:underline min-h-[44px] flex items-center">&larr; Back</button>
+      <div className="flex items-center gap-4">
+        <button onClick={onBack} className="text-sm text-[var(--accent)] font-medium hover:underline min-h-[44px] flex items-center">&larr; Back</button>
+        <div className="flex gap-1 ml-auto">
+          {(['overview', 'data'] as AppTab[]).map(t => (
+            <button
+              key={t}
+              onClick={() => setAppTab(t)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold min-h-[32px] ${
+                appTab === t
+                  ? 'bg-[var(--ink)] text-[var(--paper)]'
+                  : 'text-[var(--muted)] border border-[var(--line)]'
+              }`}
+            >
+              {t === 'data' ? 'App Data' : 'Overview'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {appTab === 'data' ? (
+        <AppDataView appId={appId} getToken={getToken} />
+      ) : (
+      <>
 
       {/* Hero */}
       <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6">
@@ -171,6 +196,126 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
           <LinkRow href={`https://freeappstore.online/apps/${appId}`} label="Store listing" />
         </div>
       </div>
+      </>
+      )}
+    </div>
+  )
+}
+
+function AppDataView({ appId, getToken }: { appId: string; getToken: () => string | null }) {
+  const [tab, setTab] = useState<'kv' | 'collections' | 'counters'>('kv')
+  const [entries, setEntries] = useState<Array<Record<string, unknown>>>([])
+  const [loading, setLoading] = useState(true)
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const [valueCache, setValueCache] = useState<Record<string, unknown>>({})
+
+  const headers = useCallback((): Record<string, string> => {
+    const h: Record<string, string> = { 'Content-Type': 'application/json' }
+    const token = getToken()
+    if (token) h.Authorization = `Bearer ${token}`
+    return h
+  }, [getToken])
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setExpanded(null)
+    let url = ''
+    if (tab === 'kv') url = `${API_BASE.replace('/v1', '')}/v1/admin/kv?app=${appId}&limit=100`
+    else if (tab === 'collections') url = `${API_BASE.replace('/v1', '')}/v1/admin/collections?app=${appId}&limit=100`
+    else url = `${API_BASE.replace('/v1', '')}/v1/admin/counters?app=${appId}&limit=200`
+
+    try {
+      const res = await fetch(url, { headers: headers() })
+      if (res.ok) {
+        const data = await res.json() as Record<string, unknown>
+        setEntries((data.entries ?? data.documents ?? data.counters ?? []) as Array<Record<string, unknown>>)
+      } else {
+        setEntries([])
+      }
+    } catch { setEntries([]) }
+    setLoading(false)
+  }, [appId, tab, headers])
+
+  useEffect(() => { load() }, [load])
+
+  const deleteItem = async (params: string) => {
+    if (!confirm('Delete this item?')) return
+    const base = API_BASE.replace('/v1', '')
+    await fetch(`${base}/v1/admin/${tab === 'collections' ? 'collections' : tab}?${params}`, {
+      method: 'DELETE', headers: headers(),
+    })
+    load()
+  }
+
+  const loadKvValue = async (user: string, key: string) => {
+    const cacheKey = `${user}:${key}`
+    if (valueCache[cacheKey]) return
+    const base = API_BASE.replace('/v1', '')
+    const res = await fetch(`${base}/v1/admin/kv/value?app=${appId}&user=${user}&key=${encodeURIComponent(key)}`, { headers: headers() })
+    if (res.ok) {
+      const data = await res.json() as { value: unknown }
+      setValueCache(prev => ({ ...prev, [cacheKey]: data.value }))
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex gap-1 mb-4">
+        {(['kv', 'collections', 'counters'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} className={`px-3 py-1 rounded-full text-xs font-semibold min-h-[32px] ${tab === t ? 'bg-[var(--accent)] text-white' : 'text-[var(--muted)] border border-[var(--line)]'}`}>
+            {t === 'kv' ? 'KV' : t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
+        <span className="text-xs text-[var(--muted)] ml-auto self-center">{entries.length} entries</span>
+      </div>
+
+      {loading ? <p className="text-sm text-[var(--muted)]">Loading...</p> : entries.length === 0 ? (
+        <p className="text-sm text-[var(--muted)]">No {tab} data for this app.</p>
+      ) : (
+        <div className="rounded-xl border border-[var(--line)] overflow-hidden">
+          {entries.map((e, i) => {
+            if (tab === 'kv') {
+              const cacheKey = `${e.user_id}:${e.key}`
+              return (
+                <div key={i} className="border-b border-[var(--line)] last:border-0">
+                  <div className="flex items-center gap-2 px-3 py-2 text-xs">
+                    <span className="font-mono text-[var(--muted)] w-16 truncate flex-shrink-0">{String(e.user_id).slice(0, 8)}</span>
+                    <button onClick={() => { loadKvValue(String(e.user_id), String(e.key)); setExpanded(expanded === i ? null : i) }} className="font-mono text-[var(--ink)] truncate flex-1 text-left hover:underline">{String(e.key)}</button>
+                    <span className="text-[var(--muted)] flex-shrink-0">{String(e.size)}B</span>
+                    <button onClick={() => deleteItem(`app=${appId}&user=${e.user_id}&key=${encodeURIComponent(String(e.key))}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
+                  </div>
+                  {expanded === i && valueCache[cacheKey] !== undefined && (
+                    <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">{JSON.stringify(valueCache[cacheKey], null, 2)}</pre>
+                  )}
+                </div>
+              )
+            }
+            if (tab === 'collections') {
+              return (
+                <div key={i} className="border-b border-[var(--line)] last:border-0">
+                  <div className="flex items-center gap-2 px-3 py-2 text-xs">
+                    <span className="font-mono text-[var(--muted)] w-16 truncate flex-shrink-0">{String(e.collection)}</span>
+                    <button onClick={() => setExpanded(expanded === i ? null : i)} className="font-mono text-[var(--ink)] truncate flex-1 text-left hover:underline">{String(e.id).slice(0, 12)}</button>
+                    <span className="text-[var(--muted)] flex-shrink-0">{String(e.owner_id).slice(0, 8)}</span>
+                    <button onClick={() => deleteItem(`app=${appId}&collection=${e.collection}&id=${e.id}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
+                  </div>
+                  {expanded === i && (
+                    <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">{JSON.stringify(e.data, null, 2)}</pre>
+                  )}
+                </div>
+              )
+            }
+            // counters
+            return (
+              <div key={i} className="flex items-center gap-2 px-3 py-2 text-xs border-b border-[var(--line)] last:border-0">
+                <span className="font-mono text-[var(--ink)] flex-1 truncate">{String(e.name)}</span>
+                <span className="font-bold text-[var(--ink)] w-16 text-right flex-shrink-0">{String(e.value)}</span>
+                <button onClick={() => deleteItem(`app=${appId}&name=${encodeURIComponent(String(e.name))}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
