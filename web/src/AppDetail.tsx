@@ -237,9 +237,14 @@ function JsonView({ data, onPreview }: { data: unknown; onPreview: (url: string)
     <div className="relative border-t border-[var(--line)]">
       <button
         onClick={copy}
-        className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)] z-10"
+        title={copied ? 'Copied!' : 'Copy JSON'}
+        className="absolute top-1.5 right-1.5 p-1 rounded bg-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)] z-10"
       >
-        {copied ? 'Copied!' : 'Copy'}
+        {copied ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        )}
       </button>
       <pre className="px-3 py-2 pr-16 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[300px] overflow-auto select-text" style={{ userSelect: 'text', WebkitUserSelect: 'text' }}>
         {parts.map((p, i) =>
@@ -269,7 +274,7 @@ function PreviewDialog({ url, onClose }: { url: string; onClose: () => void }) {
       <div className="relative max-w-[90vw] max-h-[90vh] bg-[var(--panel-strong)] rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-[var(--line)]">
           <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-[var(--accent)] truncate hover:underline">{url}</a>
-          <button onClick={onClose} className="text-sm font-bold text-[var(--muted)] hover:text-[var(--ink)] px-2 py-1 min-h-[32px]">✕</button>
+          <button onClick={onClose} title="Close" className="text-[var(--muted)] hover:text-[var(--ink)] p-1 min-h-[32px] flex-shrink-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
         {isImage ? (
           <div className="p-4 flex items-center justify-center" style={{ minWidth: 200, minHeight: 200 }}>
@@ -364,7 +369,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
                     <span className="font-mono text-[var(--muted)] w-16 truncate flex-shrink-0">{String(e.user_id).slice(0, 8)}</span>
                     <button onClick={() => { loadKvValue(String(e.user_id), String(e.key)); setExpanded(expanded === i ? null : i) }} className="font-mono text-[var(--ink)] truncate flex-1 text-left hover:underline">{String(e.key)}</button>
                     <span className="text-[var(--muted)] flex-shrink-0">{String(e.size)}B</span>
-                    <button onClick={() => deleteItem(`app=${appId}&user=${e.user_id}&key=${encodeURIComponent(String(e.key))}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
+                    <button onClick={() => deleteItem(`app=${appId}&user=${e.user_id}&key=${encodeURIComponent(String(e.key))}`)} className="text-[var(--error)] hover:text-[var(--error)] opacity-40 hover:opacity-100 min-h-[32px] px-1" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                   </div>
                   {expanded === i && valueCache[cacheKey] !== undefined && (
                     <JsonView data={valueCache[cacheKey]} onPreview={setPreviewUrl} />
@@ -379,7 +384,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
                     <span className="font-mono text-[var(--muted)] w-16 truncate flex-shrink-0">{String(e.collection)}</span>
                     <button onClick={() => setExpanded(expanded === i ? null : i)} className="font-mono text-[var(--ink)] truncate flex-1 text-left hover:underline">{String(e.id).slice(0, 12)}</button>
                     <span className="text-[var(--muted)] flex-shrink-0">{String(e.owner_id).slice(0, 8)}</span>
-                    <button onClick={() => deleteItem(`app=${appId}&collection=${e.collection}&id=${e.id}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
+                    <button onClick={() => deleteItem(`app=${appId}&collection=${e.collection}&id=${e.id}`)} className="text-[var(--error)] hover:text-[var(--error)] opacity-40 hover:opacity-100 min-h-[32px] px-1" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                   </div>
                   {expanded === i && (
                     <JsonView data={e.data} onPreview={setPreviewUrl} />
@@ -392,7 +397,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
               <div key={i} className="flex items-center gap-2 px-3 py-2 text-xs border-b border-[var(--line)] last:border-0">
                 <span className="font-mono text-[var(--ink)] flex-1 truncate">{String(e.name)}</span>
                 <span className="font-bold text-[var(--ink)] w-16 text-right flex-shrink-0">{String(e.value)}</span>
-                <button onClick={() => deleteItem(`app=${appId}&name=${encodeURIComponent(String(e.name))}`)} className="text-[var(--error)] font-semibold min-h-[32px] px-1">Del</button>
+                <button onClick={() => deleteItem(`app=${appId}&name=${encodeURIComponent(String(e.name))}`)} className="text-[var(--error)] hover:text-[var(--error)] opacity-40 hover:opacity-100 min-h-[32px] px-1" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
               </div>
             )
           })}
