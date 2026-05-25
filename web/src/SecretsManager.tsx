@@ -290,7 +290,7 @@ function AddRuleForm({ appId, secrets, headers, onDone, onError }: {
         method: 'PUT', headers: headers(),
         body: JSON.stringify({
           pattern, injectKind, injectName,
-          secretName, methods,
+          secretName, methods: methods.split(',').map(m => m.trim()).filter(Boolean),
         }),
       })
       if (res.ok) { onDone() }
