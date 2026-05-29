@@ -77,7 +77,7 @@ test.describe('FAS analytics loader (public)', () => {
 
 test.describe('FAS analytics dashboard page (public shell)', () => {
   test('/analytics returns a 200 HTML page', async ({ request }) => {
-    // The dashboard ships as a static HTML file from CF Pages. It includes
+    // The dashboard ships as a static HTML file via R2. It includes
     // the platform analytics loader script (so the dashboard counts its
     // own visitors), the auth bootstrap, and a div for the diagnostics
     // empty state. We don't auth-test the UI itself here — just that the

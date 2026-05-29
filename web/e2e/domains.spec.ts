@@ -72,7 +72,7 @@ test.describe('PAS API: /v1/apps/:appId/domains — auth + validation', () => {
   });
 
   // Regression: previously the deployed Worker read `result.verification_status`
-  // instead of `result.status` from CF Pages, so domains never flipped from
+  // instead of `result.status`, so domains never flipped from
   // pending → active. We can't verify the field-name fix end-to-end without
   // a real session, but we CAN confirm the route exists (auth check fires
   // first) — proving the deploy made it to prod.

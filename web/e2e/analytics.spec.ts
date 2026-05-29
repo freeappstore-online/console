@@ -21,7 +21,7 @@ test.describe('Analytics dashboard — UI shell (public)', () => {
   });
 
   test('console response sets the analytics-friendly CSP header', async ({ request }) => {
-    // _headers ships via HTTP, not <meta>. Verify CF Pages applied it by
+    // _headers ships via HTTP, not <meta>. Verify the host worker applied it by
     // reading the response header directly. This catches regressions where
     // the public/_headers file is missing or accidentally narrowed.
     const res = await request.get('https://console.proappstore.online/', {
