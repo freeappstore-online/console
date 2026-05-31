@@ -20,12 +20,13 @@ interface AppEntry {
 
 const API_BASE = 'https://api.freeappstore.online/v1'
 
-async function fetchApps(token: string | null): Promise<AppEntry[]> {
-  if (!token) return []
+async function fetchApps(token: string | null): Promise<AppEntry[] | 'unauthorized'> {
+  if (!token) return 'unauthorized'
   try {
     const res = await fetch(`${API_BASE}/apps/mine`, {
       headers: { Authorization: `Bearer ${token}` },
     })
+    if (res.status === 401) return 'unauthorized'
     if (!res.ok) return []
     const data = (await res.json()) as { apps: { id: string; ownerLogin: string; createdAt: number; category?: string | null; oneliner?: string | null; store?: string | null }[] }
     return (data.apps ?? []).map((a) => ({
@@ -88,7 +89,14 @@ export default function App() {
   const setView = useCallback((v: View) => navigate(v), [])
 
   const reloadApps = useCallback(async () => {
-    try { setApps(await fetchApps(fas.auth.token)) } catch {}
+    try {
+      const result = await fetchApps(fas.auth.token)
+      if (result === 'unauthorized') {
+        fas.auth.signOut()
+        return
+      }
+      setApps(result)
+    } catch {}
   }, [])
 
   useEffect(() => {
