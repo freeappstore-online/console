@@ -28,10 +28,10 @@ async function fetchApps(token: string | null): Promise<AppEntry[] | 'unauthoriz
     })
     if (res.status === 401) return 'unauthorized'
     if (!res.ok) return []
-    const data = (await res.json()) as { apps: { id: string; ownerLogin: string; createdAt: number; category?: string | null; oneliner?: string | null; store?: string | null }[] }
+    const data = (await res.json()) as { apps: { id: string; name?: string; ownerLogin: string; createdAt: number; category?: string | null; oneliner?: string | null; store?: string | null }[] }
     return (data.apps ?? []).map((a) => ({
       id: a.id,
-      name: a.id,
+      name: a.name || a.id,
       createdAt: new Date(a.createdAt).toISOString(),
       category: a.category,
       description: a.oneliner,
