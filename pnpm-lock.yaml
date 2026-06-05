@@ -11,8 +11,8 @@ importers:
   web:
     dependencies:
       '@freeappstore/sdk':
-        specifier: ^0.10.0
-        version: 0.10.0(react@19.2.6)
+        specifier: ^0.14.0
+        version: 0.14.10(react@19.2.6)
       react:
         specifier: ^19.2.5
         version: 19.2.6
@@ -563,8 +563,8 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@freeappstore/sdk@0.10.0':
-    resolution: {integrity: sha512-JbHT8BQv63bIR8fxPG9DQ8MhErn/VkINQOA1YqrYUZ0IhQ8lbiM5/ZKlJOYgwGf3qFKXG/d1ln/hC84o7U6U4Q==}
+  '@freeappstore/sdk@0.14.10':
+    resolution: {integrity: sha512-MmyB/2ay5PsJv8/glDy9NL/lmGoozKYAcNkXAEIYxG8abgvzOdA5Hm/hxpXRP06+qcvr3HH9BTpDDtEdH/6Eag==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
@@ -2751,7 +2751,7 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@freeappstore/sdk@0.10.0(react@19.2.6)':
+  '@freeappstore/sdk@0.14.10(react@19.2.6)':
     optionalDependencies:
       react: 19.2.6
 
