@@ -5,6 +5,10 @@ import { useAuth, useTheme } from '@freeappstore/sdk/hooks'
 import { Avatar, SignInButton, ThemeToggle, TextSizeToggle, ProfileMenu, ProfilePage, FasShell } from '@freeappstore/sdk/ui'
 import { AppDetail } from './AppDetail'
 import { ContentAdmin } from './ContentAdmin'
+import { syncTokenToCookie, restoreFromCookie } from './authSync'
+
+// Restore session from cross-subdomain cookie before SDK init
+restoreFromCookie()
 
 const fas = initApp({ appId: 'console' })
 
@@ -71,6 +75,9 @@ export default function App() {
   const { user, loading } = useAuth(fas)
   const [route, setRoute] = useState(parseRoute)
   const [apps, setApps] = useState<AppEntry[]>([])
+
+  // Mirror token to cross-subdomain cookie on every auth change
+  useEffect(() => { syncTokenToCookie(fas.auth.token) }, [user])
 
   // Register global setter + listen for browser back/forward
   useEffect(() => {

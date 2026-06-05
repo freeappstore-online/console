@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
@@ -24,14 +25,18 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "FAS Creator Console", short_name: "Console",
-        description: "Creator Console for FreeAppStore",
-        start_url: '/', display: 'standalone',
-        background_color: "#000000", theme_color: "#000000",
+        name: "FreeAppStore",
+        short_name: "FreeAppStore",
+        description: "Manage your free apps",
+        start_url: '/app/',
+        scope: '/app/',
+        display: 'standalone',
+        background_color: "#0f172a",
+        theme_color: "#0f172a",
         orientation: "any",
         icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
     }),
