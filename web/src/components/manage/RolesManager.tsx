@@ -115,7 +115,6 @@ export function RolesManager({ appId, getToken }: Props) {
         </div>
       )}
 
-      {/* Role descriptions */}
       <div className="mb-5 grid gap-2 sm:grid-cols-2">
         {Object.entries(ROLE_DESCRIPTIONS).map(([role, desc]) => (
           <div key={role} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-2">
@@ -125,7 +124,6 @@ export function RolesManager({ appId, getToken }: Props) {
         ))}
       </div>
 
-      {/* Current assignments */}
       {loading ? (
         <p className="text-sm text-[var(--muted)]">Loading roles...</p>
       ) : roles.length === 0 ? (
@@ -136,10 +134,7 @@ export function RolesManager({ appId, getToken }: Props) {
             const isOwner = r.role_name === 'owner'
             const key = `${r.user_id}:${r.role_name}`
             return (
-              <div
-                key={key}
-                className="flex items-center justify-between gap-3 rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-2"
-              >
+              <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-2">
                 <div className="min-w-0">
                   <span className="text-sm font-medium text-[var(--ink)] truncate block">{r.user_id}</span>
                   <span className="text-xs text-[var(--muted)]">
@@ -149,9 +144,7 @@ export function RolesManager({ appId, getToken }: Props) {
                   </span>
                 </div>
                 {isOwner ? (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] flex-shrink-0">
-                    Owner
-                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] flex-shrink-0">Owner</span>
                 ) : (
                   <button
                     onClick={() => handleRevoke(r.user_id, r.role_name)}
@@ -167,7 +160,6 @@ export function RolesManager({ appId, getToken }: Props) {
         </div>
       )}
 
-      {/* Add role form */}
       <form onSubmit={handleAdd} className="space-y-3">
         <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">Add Role</p>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -206,12 +198,7 @@ export function RolesManager({ appId, getToken }: Props) {
           </button>
         </div>
         <label className="flex items-center gap-2 text-xs text-[var(--muted)] cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useCustom}
-            onChange={(e) => setUseCustom(e.target.checked)}
-            className="rounded"
-          />
+          <input type="checkbox" checked={useCustom} onChange={(e) => setUseCustom(e.target.checked)} className="rounded" />
           Use custom role name
         </label>
       </form>

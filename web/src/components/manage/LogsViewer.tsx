@@ -46,7 +46,7 @@ export function LogsViewer({ appId, getToken }: Props) {
         const withBuild = (data.logs ?? []).find(l => l.build)
         if (withBuild?.build) setBuildMeta(withBuild.build)
       }
-    } catch {}
+    } catch { /* logs fetch is best-effort */ }
     setLoading(false)
   }, [appId, level, limit, headers])
 
@@ -67,6 +67,7 @@ export function LogsViewer({ appId, getToken }: Props) {
           <select
             value={level}
             onChange={e => setLevel(e.target.value)}
+            aria-label="Log level filter"
             className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-2 py-1 text-xs text-[var(--ink)] min-h-[36px]"
           >
             {LEVELS.map(l => <option key={l} value={l}>{l === 'all' ? 'All levels' : l.toUpperCase()}</option>)}
@@ -74,6 +75,7 @@ export function LogsViewer({ appId, getToken }: Props) {
           <select
             value={limit}
             onChange={e => setLimit(Number(e.target.value))}
+            aria-label="Log entry limit"
             className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-2 py-1 text-xs text-[var(--ink)] min-h-[36px]"
           >
             {[25, 50, 100, 200].map(n => <option key={n} value={n}>{n} entries</option>)}
@@ -130,7 +132,6 @@ export function LogsViewer({ appId, getToken }: Props) {
         </div>
       )}
 
-      {/* Expanded entry detail */}
       {expanded !== null && logs[expanded] && (
         <div className="mt-2 rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3">
           <div className="flex items-center justify-between mb-2">

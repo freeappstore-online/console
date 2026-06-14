@@ -25,9 +25,7 @@ export function ContentAdmin({ getToken }: Props) {
             key={t}
             onClick={() => setTab(t)}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap min-h-[36px] ${
-              tab === t
-                ? 'bg-[var(--ink)] text-[var(--paper)]'
-                : 'text-[var(--muted)] border border-[var(--line)]'
+              tab === t ? 'bg-[var(--ink)] text-[var(--paper)]' : 'text-[var(--muted)] border border-[var(--line)]'
             }`}
           >
             {t === 'kv' ? 'KV Store' : t.charAt(0).toUpperCase() + t.slice(1)}
@@ -49,7 +47,7 @@ function OverviewTab({ headers }: { headers: () => Record<string, string> }) {
     fetch(`${API}/admin/stats`, { headers: headers() })
       .then(r => r.ok ? r.json() : null)
       .then(d => setStats(d as Record<string, number>))
-      .catch(() => {})
+      .catch(() => { /* best-effort */ })
   }, [headers])
 
   if (!stats) return <p className="text-sm text-[var(--muted)]">Loading...</p>
@@ -109,16 +107,16 @@ function KvTab({ headers }: { headers: () => Record<string, string> }) {
   return (
     <div>
       <div className="flex gap-2 mb-3 flex-wrap">
-        <input value={appFilter} onChange={e => setAppFilter(e.target.value)} placeholder="Filter by app" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
-        <input value={userFilter} onChange={e => setUserFilter(e.target.value)} placeholder="Filter by user" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
+        <input value={appFilter} onChange={e => setAppFilter(e.target.value)} placeholder="Filter by app" aria-label="Filter by app" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
+        <input value={userFilter} onChange={e => setUserFilter(e.target.value)} placeholder="Filter by user" aria-label="Filter by user" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
         <button onClick={load} className="text-xs font-semibold text-[var(--accent)] min-h-[36px] px-2">Search</button>
       </div>
       {loading ? <p className="text-sm text-[var(--muted)]">Loading...</p> : entries.length === 0 ? <p className="text-sm text-[var(--muted)]">No entries found.</p> : (
         <div className="rounded-xl border border-[var(--line)] overflow-hidden">
-          {entries.map((e, i) => {
+          {entries.map((e) => {
             const cacheKey = `${e.app_id}:${e.user_id}:${e.key}`
             return (
-              <div key={i} className="border-b border-[var(--line)] last:border-0">
+              <div key={cacheKey} className="border-b border-[var(--line)] last:border-0">
                 <div className="flex items-center gap-2 px-3 py-2 text-xs">
                   <span className="font-mono text-[var(--accent)] w-20 truncate flex-shrink-0">{String(e.app_id)}</span>
                   <span className="font-mono text-[var(--muted)] w-20 truncate flex-shrink-0">{String(e.user_id).slice(0, 8)}</span>
@@ -127,9 +125,7 @@ function KvTab({ headers }: { headers: () => Record<string, string> }) {
                   <button onClick={() => deleteEntry(String(e.app_id), String(e.user_id), String(e.key))} className="text-[var(--error)] font-semibold flex-shrink-0 min-h-[32px] px-1">Del</button>
                 </div>
                 {expanded === cacheKey && valueCache[cacheKey] !== undefined && (
-                  <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">
-                    {JSON.stringify(valueCache[cacheKey], null, 2)}
-                  </pre>
+                  <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">{JSON.stringify(valueCache[cacheKey], null, 2)}</pre>
                 )}
               </div>
             )
@@ -171,14 +167,14 @@ function CollectionsTab({ headers }: { headers: () => Record<string, string> }) 
   return (
     <div>
       <div className="flex gap-2 mb-3 flex-wrap">
-        <input value={appFilter} onChange={e => setAppFilter(e.target.value)} placeholder="Filter by app" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
-        <input value={collFilter} onChange={e => setCollFilter(e.target.value)} placeholder="Collection name" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
+        <input value={appFilter} onChange={e => setAppFilter(e.target.value)} placeholder="Filter by app" aria-label="Filter by app" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
+        <input value={collFilter} onChange={e => setCollFilter(e.target.value)} placeholder="Collection name" aria-label="Filter by collection" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-32" />
         <button onClick={load} className="text-xs font-semibold text-[var(--accent)] min-h-[36px] px-2">Search</button>
       </div>
       {loading ? <p className="text-sm text-[var(--muted)]">Loading...</p> : docs.length === 0 ? <p className="text-sm text-[var(--muted)]">No documents found.</p> : (
         <div className="rounded-xl border border-[var(--line)] overflow-hidden">
           {docs.map((d, i) => (
-            <div key={i} className="border-b border-[var(--line)] last:border-0">
+            <div key={`${d.app_id}:${d.collection}:${d.id}`} className="border-b border-[var(--line)] last:border-0">
               <div className="flex items-center gap-2 px-3 py-2 text-xs">
                 <span className="font-mono text-[var(--accent)] w-20 truncate flex-shrink-0">{String(d.app_id)}</span>
                 <span className="font-mono text-[var(--muted)] w-20 truncate flex-shrink-0">{String(d.collection)}</span>
@@ -187,9 +183,7 @@ function CollectionsTab({ headers }: { headers: () => Record<string, string> }) 
                 <button onClick={() => deleteDoc(String(d.app_id), String(d.collection), String(d.id))} className="text-[var(--error)] font-semibold flex-shrink-0 min-h-[32px] px-1">Del</button>
               </div>
               {expanded === i && (
-                <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">
-                  {JSON.stringify(d.data, null, 2)}
-                </pre>
+                <pre className="px-3 py-2 text-xs font-mono bg-[var(--paper)] text-[var(--ink)] whitespace-pre-wrap break-all max-h-[200px] overflow-auto border-t border-[var(--line)]">{JSON.stringify(d.data, null, 2)}</pre>
               )}
             </div>
           ))}
@@ -227,13 +221,13 @@ function CountersTab({ headers }: { headers: () => Record<string, string> }) {
   return (
     <div>
       <div className="flex gap-2 mb-3">
-        <input value={appFilter} onChange={e => setAppFilter(e.target.value)} placeholder="Filter by app" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-40" />
+        <input value={appFilter} onChange={e => setAppFilter(e.target.value)} placeholder="Filter by app" aria-label="Filter by app" className="rounded-lg border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-sm text-[var(--ink)] min-h-[36px] w-40" />
         <button onClick={load} className="text-xs font-semibold text-[var(--accent)] min-h-[36px] px-2">Search</button>
       </div>
       {loading ? <p className="text-sm text-[var(--muted)]">Loading...</p> : counters.length === 0 ? <p className="text-sm text-[var(--muted)]">No counters found.</p> : (
         <div className="rounded-xl border border-[var(--line)] overflow-hidden">
-          {counters.map((c, i) => (
-            <div key={i} className="flex items-center gap-2 px-3 py-2 text-xs border-b border-[var(--line)] last:border-0">
+          {counters.map((c) => (
+            <div key={`${c.app_id}:${c.name}`} className="flex items-center gap-2 px-3 py-2 text-xs border-b border-[var(--line)] last:border-0">
               <span className="font-mono text-[var(--accent)] w-20 truncate flex-shrink-0">{String(c.app_id)}</span>
               <span className="font-mono text-[var(--ink)] flex-1 truncate">{String(c.name)}</span>
               <span className="font-bold text-[var(--ink)] w-16 text-right flex-shrink-0">{String(c.value)}</span>
@@ -269,10 +263,10 @@ function UsersTab({ headers }: { headers: () => Record<string, string> }) {
       <p className="text-xs text-[var(--muted)] mb-3">{total} total users</p>
       {loading ? <p className="text-sm text-[var(--muted)]">Loading...</p> : (
         <div className="rounded-xl border border-[var(--line)] overflow-hidden">
-          {users.map((u, i) => (
-            <div key={i} className="flex items-center gap-3 px-3 py-2 text-xs border-b border-[var(--line)] last:border-0">
+          {users.map((u) => (
+            <div key={String(u.id)} className="flex items-center gap-3 px-3 py-2 text-xs border-b border-[var(--line)] last:border-0">
               {u.avatar_url ? (
-                <img src={String(u.avatar_url)} className="w-6 h-6 rounded-full flex-shrink-0" alt="" />
+                <img src={String(u.avatar_url)} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" alt="" />
               ) : (
                 <div className="w-6 h-6 rounded-full bg-[var(--accent)] flex-shrink-0" />
               )}

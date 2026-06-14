@@ -1,30 +1,31 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#000000" id="theme-color" />
-    <meta name="darkreader-lock" />
     <script>
-      if (matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.dataset.theme = 'dark';
-      }
+      // No-flash theme boot: apply stored preference (or system default) before paint.
+      (function () {
+        try {
+          var p = localStorage.getItem("stores-theme");
+          var dark = p === "dark" || ((!p || p === "system") && matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.dataset.theme = "dark";
+        } catch (e) {}
+      })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <meta name="description" content="Creator portal for FreeAppStore — build, manage, and publish free PWA apps with AI." />
+    <link rel="icon" href="/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="FreeAppStore Console" />
     <meta name="mobile-web-app-capable" content="yes" />
     <title>Creator Console — FreeAppStore</title>
-    <!-- CF Web Analytics beacon for the console itself. Cookieless, no PII.
-         Token is the literal string until set; replace PROAPPSTORE_CONSOLE_CF_BEACON_TOKEN
-         with the real Web Analytics site_token from the CF dashboard
-         (or wire a build-time substitution if/when the console grows a build pipeline). -->
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-            data-cf-beacon='{"token":"FREEAPPSTORE_CONSOLE_CF_BEACON_TOKEN"}'></script>
   </head>
   <body>
     <div id="root"></div>
