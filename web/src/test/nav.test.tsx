@@ -47,9 +47,10 @@ describe("Nav — authenticated", () => {
     expect(avatars.length).toBeGreaterThan(0);
   });
 
-  it("renders mobile menu button", () => {
+  it("renders mobile bottom tab bar", () => {
     renderNav("/", WITH_AUTH);
-    expect(screen.getByLabelText("Menu")).toBeInTheDocument();
+    // Bottom tab bar has Home, Create, Publish, Profile tabs
+    expect(screen.getAllByText("Home").length).toBeGreaterThan(0);
   });
 });
 

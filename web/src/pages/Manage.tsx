@@ -62,7 +62,7 @@ export function Manage() {
   return (
     <>
       <Nav />
-      <main className="container py-6" style={{ maxWidth: 900 }}>
+      <main className="container py-4 sm:py-6" style={{ maxWidth: 900 }}>
         <AppDetail
           appId={appId}
           appName={appName}
@@ -100,7 +100,7 @@ export function DataAdmin() {
   return (
     <>
       <Nav />
-      <main className="container py-6" style={{ maxWidth: 1100 }}>
+      <main className="container py-4 sm:py-6" style={{ maxWidth: 1100 }}>
         <h1 className="font-display text-2xl font-bold mb-6" style={{ color: "var(--ink)" }}>Platform Data</h1>
         <ContentAdmin getToken={getToken} />
       </main>

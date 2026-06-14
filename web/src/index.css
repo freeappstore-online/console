@@ -85,6 +85,21 @@ html, body {
 #root {
   overflow-x: hidden;
   min-height: 100dvh;
+  /* Space for mobile bottom tab bar */
+  --tab-bar-h: calc(56px + env(safe-area-inset-bottom));
+  padding-bottom: var(--tab-bar-h);
+}
+
+@media (min-width: 640px) {
+  #root {
+    --tab-bar-h: 0px;
+    padding-bottom: 0;
+  }
+}
+
+/* Full-height pages (Create chat) must subtract the tab bar */
+.full-height-page {
+  height: calc(100dvh - var(--tab-bar-h));
 }
 
 /* Display type — Fraunces serif for prominent headings. */

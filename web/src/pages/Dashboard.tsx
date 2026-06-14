@@ -86,23 +86,23 @@ export function Dashboard() {
   return (
     <>
       <Nav />
-      <main className="container py-6" style={{ maxWidth: 900 }}>
-        <div className="space-y-8">
+      <main className="container py-4 sm:py-6" style={{ maxWidth: 900 }}>
+        <div className="space-y-5 sm:space-y-8">
           {/* Welcome */}
-          <div className="rounded-2xl border p-6" style={{ borderColor: "var(--line)", background: "var(--panel)" }}>
-            <div className="flex items-center gap-4">
+          <div className="rounded-2xl border p-4 sm:p-6" style={{ borderColor: "var(--line)", background: "var(--panel)" }}>
+            <div className="flex items-center gap-3 sm:gap-4">
               {user.avatarUrl && (
-                <img src={user.avatarUrl} alt={user.login} className="rounded-full" style={{ width: 56, height: 56, border: "2px solid var(--line)" }} />
+                <img src={user.avatarUrl} alt={user.login} className="rounded-full" style={{ width: 44, height: 44, border: "2px solid var(--line)" }} />
               )}
               <div>
-                <h2 className="font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>Welcome, {user.login}</h2>
-                <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>Manage your apps on FreeAppStore</p>
+                <h2 className="font-display text-xl sm:text-2xl font-bold" style={{ color: "var(--ink)" }}>Welcome, {user.login}</h2>
+                <p className="mt-0.5 text-sm" style={{ color: "var(--muted)" }}>Manage your apps</p>
               </div>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <StatCard label="Apps" value={apps.length} />
             <StatCard label="Platform" value="Free" />
             <StatCard label="License" value="MIT" />
@@ -153,9 +153,9 @@ export function Dashboard() {
           </div>
 
           {/* Quick Links */}
-          <div className="rounded-2xl border p-6" style={{ borderColor: "var(--line)", background: "var(--panel)" }}>
-            <h3 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: "var(--muted)" }}>Quick Links</h3>
-            <div className="grid gap-2 sm:grid-cols-3">
+          <div className="rounded-2xl border p-4 sm:p-6" style={{ borderColor: "var(--line)", background: "var(--panel)" }}>
+            <h3 className="text-sm font-semibold uppercase tracking-wide mb-3 sm:mb-4" style={{ color: "var(--muted)" }}>Quick Links</h3>
+            <div className="grid gap-2 grid-cols-1 sm:grid-cols-3">
               <QuickLink href="https://freeappstore.online/docs" label="SDK Docs" desc="Auth, KV, rooms, proxy" />
               <QuickLink href="https://freeappstore.online/docs/ui" label="UI Library" desc="Components & design tokens" />
               <QuickLink href="https://freeappstore.online/guidelines" label="Guidelines" desc="Quality & compliance rules" />
@@ -169,9 +169,9 @@ export function Dashboard() {
 
 function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-xl border p-4" style={{ borderColor: "var(--line)", background: "var(--panel)" }}>
-      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>{label}</p>
-      <p className="mt-1 font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>{value}</p>
+    <div className="rounded-xl border p-3 sm:p-4" style={{ borderColor: "var(--line)", background: "var(--panel)" }}>
+      <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>{label}</p>
+      <p className="mt-0.5 sm:mt-1 font-display text-lg sm:text-2xl font-bold" style={{ color: "var(--ink)" }}>{value}</p>
     </div>
   );
 }

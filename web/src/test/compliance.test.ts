@@ -137,8 +137,8 @@ describe("Nav component", () => {
     expect(nav).toContain("freeappstore.online");
   });
 
-  it("has mobile hamburger menu", () => {
+  it("has mobile bottom tab bar", () => {
     expect(nav).toContain("sm:hidden");
-    expect(nav).toContain("Menu");
+    expect(nav).toContain("bottom-0");
   });
 });

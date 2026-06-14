@@ -156,7 +156,7 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
 
       <div>
         <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">App Info</h3>
-        <div className="grid gap-3 grid-cols-2">
+        <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2">
           <InfoCard label="Subdomain" value={`${appId}.freeappstore.online`} mono />
           <InfoCard label="Source" value={`freeappstore-online/${appId}`} href={repoUrl} />
           <InfoCard label="Deploy" value="Push to main = auto-deploy" />

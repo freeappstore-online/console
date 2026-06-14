@@ -23,7 +23,14 @@ function ThemeToggle() {
   );
 }
 
-const NAV_LINKS = [
+const TABS = [
+  { to: "/", label: "Home", icon: "\u2302" },
+  { to: "/create", label: "Create", icon: "+" },
+  { to: "/publish", label: "Publish", icon: "\u2191" },
+  { to: "/profile", label: "Profile", icon: "\u2699" },
+];
+
+const DESKTOP_LINKS = [
   { to: "/", label: "Dashboard" },
   { to: "/create", label: "Create" },
   { to: "/publish", label: "Publish" },
@@ -32,7 +39,6 @@ const NAV_LINKS = [
 ];
 
 export function Nav() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const avatarRef = useRef<HTMLDivElement>(null);
   const { user, signIn, signOut } = useAuth();
@@ -56,204 +62,88 @@ export function Nav() {
   };
 
   return (
-    <header className="border-b" style={{ borderColor: "var(--line)", padding: "0.75rem 0" }}>
-      <div className="container flex items-center justify-between">
-        <Link to="/" className="font-display text-2xl font-extrabold tracking-tight no-underline" style={{ color: "var(--ink-strong)" }}>
-          Free<span style={{ color: "var(--accent)" }}>AppStore</span>
-        </Link>
+    <>
+      {/* Top bar — desktop: full nav, mobile: brand + theme + avatar */}
+      <header className="border-b" style={{ borderColor: "var(--line)", padding: "0.5rem 0" }}>
+        <div className="container flex items-center justify-between">
+          <Link to="/" className="font-display text-xl sm:text-2xl font-extrabold tracking-tight no-underline" style={{ color: "var(--ink-strong)" }}>
+            Free<span style={{ color: "var(--accent)" }}>AppStore</span>
+          </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden sm:flex items-center gap-5">
-          <ThemeToggle />
-          {NAV_LINKS.map((link) =>
-            link.external ? (
-              <a
-                key={link.to}
-                href={link.to}
-                className="text-sm font-semibold no-underline"
-                style={{ color: "var(--muted)" }}
-              >
-                {link.label}
-              </a>
-            ) : (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="text-sm font-semibold no-underline"
-                style={{ color: isActive(link.to) ? "var(--ink)" : "var(--muted)" }}
-              >
-                {link.label}
-              </Link>
-            ),
-          )}
-          {user ? (
-            <div ref={avatarRef} style={{ position: "relative" }}>
-              <button
-                onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
-              >
-                <img
-                  src={user.avatarUrl || ""}
-                  alt={user.login}
-                  className="rounded-full border-2"
-                  style={{ width: 28, height: 28, borderColor: avatarMenuOpen ? "var(--accent)" : "var(--line)" }}
-                />
-              </button>
-              {avatarMenuOpen && (
-                <div
-                  className="absolute right-0 mt-2 rounded-xl border shadow-lg"
-                  style={{ background: "var(--panel)", borderColor: "var(--line)", width: 200, zIndex: 100, padding: "0.5rem 0" }}
-                >
-                  <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--line)" }}>
-                    <div className="text-sm font-semibold truncate">{user.login}</div>
-                    <div className="text-xs" style={{ color: "var(--muted)" }}>GitHub</div>
-                  </div>
-                  <button
-                    onClick={() => { setAvatarMenuOpen(false); navigate("/profile"); }}
-                    className="w-full text-left px-3 py-2 text-sm"
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink)" }}
-                  >
-                    Profile & Settings
-                  </button>
-                  <button
-                    onClick={() => { setAvatarMenuOpen(false); navigate("/admin"); }}
-                    className="w-full text-left px-3 py-2 text-sm"
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink)" }}
-                  >
-                    Admin
-                  </button>
-                  <button
-                    onClick={() => { setAvatarMenuOpen(false); navigate("/admin/data"); }}
-                    className="w-full text-left px-3 py-2 text-sm"
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink)" }}
-                  >
-                    Platform Data
-                  </button>
-                  <div style={{ borderTop: "1px solid var(--line)", margin: "0.25rem 0" }} />
-                  <button
-                    onClick={() => { setAvatarMenuOpen(false); signOut(); navigate("/"); }}
-                    className="w-full text-left px-3 py-2 text-sm"
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--error)" }}
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={signIn}
-              className="text-sm font-semibold"
-              style={{ color: "var(--accent)", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Sign in
-            </button>
-          )}
-        </nav>
-
-        {/* Mobile controls */}
-        <div className="flex items-center gap-2 sm:hidden">
-          <ThemeToggle />
-          {user && (
-            <img
-              src={user.avatarUrl || ""}
-              alt={user.login}
-              className="rounded-full"
-              style={{ width: 28, height: 28, border: "2px solid var(--line)" }}
-              onClick={() => setMenuOpen(true)}
-            />
-          )}
-          <button
-            onClick={() => setMenuOpen(true)}
-            style={{ width: 36, height: 36, background: "none", border: "1px solid var(--line)", borderRadius: "999px", fontSize: "1.1rem", color: "var(--ink)", cursor: "pointer" }}
-            aria-label="Menu"
-          >
-            &#9776;
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile drawer */}
-      {menuOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            style={{ background: "rgba(0,0,0,0.3)" }}
-            onClick={() => setMenuOpen(false)}
-          />
-          <nav
-            className="fixed top-0 right-0 z-50 flex flex-col gap-1 p-4"
-            style={{
-              width: 220,
-              height: "100dvh",
-              background: "var(--panel)",
-              borderLeft: "1px solid var(--line)",
-              boxShadow: "-4px 0 20px rgba(0,0,0,0.1)",
-            }}
-          >
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="self-end mb-2"
-              style={{ background: "none", border: "none", color: "var(--muted)", fontSize: "1rem", cursor: "pointer" }}
-            >
-              &#10005;
-            </button>
-            {NAV_LINKS.map((link) =>
+          {/* Desktop nav links */}
+          <nav className="hidden sm:flex items-center gap-5">
+            <ThemeToggle />
+            {DESKTOP_LINKS.map((link) =>
               link.external ? (
-                <a
-                  key={link.to}
-                  href={link.to}
-                  className="block py-2 text-base font-semibold no-underline"
-                  style={{ color: "var(--muted)" }}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
+                <a key={link.to} href={link.to} className="text-sm font-semibold no-underline" style={{ color: "var(--muted)" }}>{link.label}</a>
               ) : (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="block py-2 text-base font-semibold no-underline"
-                  style={{ color: isActive(link.to) ? "var(--ink)" : "var(--muted)" }}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
+                <Link key={link.to} to={link.to} className="text-sm font-semibold no-underline" style={{ color: isActive(link.to) ? "var(--ink)" : "var(--muted)" }}>{link.label}</Link>
               ),
             )}
-
             {user ? (
-              <>
-                <Link to="/profile" className="flex items-center gap-2 mt-4" onClick={() => setMenuOpen(false)}>
-                  <img src={user.avatarUrl || ""} alt={user.login} className="rounded-full" style={{ width: 24, height: 24 }} />
-                  <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{user.login}</span>
-                </Link>
-                <Link to="/profile" className="block py-1 text-sm no-underline" style={{ color: "var(--muted)" }} onClick={() => setMenuOpen(false)}>
-                  Profile & Settings
-                </Link>
-                <Link to="/admin" className="block py-1 text-sm no-underline" style={{ color: "var(--muted)" }} onClick={() => setMenuOpen(false)}>
-                  Admin
-                </Link>
-                <button
-                  onClick={() => { setMenuOpen(false); signOut(); navigate("/"); }}
-                  className="mt-2 text-sm"
-                  style={{ color: "var(--error)", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
-                >
-                  Sign out
+              <div ref={avatarRef} style={{ position: "relative" }}>
+                <button onClick={() => setAvatarMenuOpen(!avatarMenuOpen)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  <img src={user.avatarUrl || ""} alt={user.login} className="rounded-full border-2" style={{ width: 28, height: 28, borderColor: avatarMenuOpen ? "var(--accent)" : "var(--line)" }} />
                 </button>
-              </>
+                {avatarMenuOpen && (
+                  <div className="absolute right-0 mt-2 rounded-xl border shadow-lg" style={{ background: "var(--panel)", borderColor: "var(--line)", width: 200, zIndex: 100, padding: "0.5rem 0" }}>
+                    <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--line)" }}>
+                      <div className="text-sm font-semibold truncate">{user.login}</div>
+                      <div className="text-xs" style={{ color: "var(--muted)" }}>GitHub</div>
+                    </div>
+                    <button onClick={() => { setAvatarMenuOpen(false); navigate("/profile"); }} className="w-full text-left px-3 py-2 text-sm" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink)" }}>Profile & Settings</button>
+                    <button onClick={() => { setAvatarMenuOpen(false); navigate("/admin"); }} className="w-full text-left px-3 py-2 text-sm" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink)" }}>Admin</button>
+                    <button onClick={() => { setAvatarMenuOpen(false); navigate("/admin/data"); }} className="w-full text-left px-3 py-2 text-sm" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink)" }}>Platform Data</button>
+                    <div style={{ borderTop: "1px solid var(--line)", margin: "0.25rem 0" }} />
+                    <button onClick={() => { setAvatarMenuOpen(false); signOut(); navigate("/"); }} className="w-full text-left px-3 py-2 text-sm" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--error)" }}>Sign out</button>
+                  </div>
+                )}
+              </div>
             ) : (
-              <button
-                onClick={() => { setMenuOpen(false); signIn(); }}
-                className="mt-4 text-sm font-semibold"
-                style={{ color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
-              >
-                Sign in
-              </button>
+              <button onClick={signIn} className="text-sm font-semibold" style={{ color: "var(--accent)", background: "none", border: "none", cursor: "pointer" }}>Sign in</button>
             )}
           </nav>
-        </>
-      )}
-    </header>
+
+          {/* Mobile top-right: theme + sign in/avatar */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <ThemeToggle />
+            {user ? (
+              <button onClick={() => navigate("/profile")} style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+                <img src={user.avatarUrl || ""} alt={user.login} className="rounded-full" style={{ width: 28, height: 28, border: "2px solid var(--line)" }} />
+              </button>
+            ) : (
+              <button onClick={signIn} className="text-sm font-semibold" style={{ color: "var(--accent)", background: "none", border: "none", cursor: "pointer" }}>Sign in</button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile bottom tab bar */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 sm:hidden"
+        style={{
+          background: "var(--panel)",
+          borderTop: "1px solid var(--line)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+      >
+        <div className="flex">
+          {TABS.map((tab) => {
+            const active = isActive(tab.to);
+            return (
+              <Link
+                key={tab.to}
+                to={tab.to}
+                className="flex-1 flex flex-col items-center gap-0.5 py-2 no-underline min-h-[48px] justify-center"
+                style={{ color: active ? "var(--accent)" : "var(--muted)" }}
+              >
+                <span className="text-lg leading-none" aria-hidden>{tab.icon}</span>
+                <span className="text-[10px] font-semibold">{tab.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

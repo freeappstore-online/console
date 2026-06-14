@@ -112,7 +112,7 @@ export function Profile() {
   return (
     <>
     <Nav />
-    <div className="container py-8" style={{ maxWidth: 640 }}>
+    <div className="container py-4 sm:py-8" style={{ maxWidth: 640 }}>
       {/* Avatar + name card */}
       <div
         className="flex items-center gap-5 p-5 rounded-2xl border mb-6"

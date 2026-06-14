@@ -167,9 +167,9 @@ export function Create() {
     return (
       <>
         <Nav />
-        <main className="flex flex-col items-center justify-center text-center" style={{ minHeight: "60vh", padding: "4rem 1.5rem", maxWidth: 640, margin: "0 auto" }}>
-          <h1 className="font-display text-5xl font-extrabold tracking-tight mb-3" style={{ color: "var(--ink-strong)" }}>VibeCode</h1>
-          <p className="text-lg mb-8" style={{ color: "var(--muted)", maxWidth: 480 }}>
+        <main className="flex flex-col items-center justify-center text-center" style={{ minHeight: "60vh", padding: "2rem 1.25rem", maxWidth: 640, margin: "0 auto" }}>
+          <h1 className="font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-3" style={{ color: "var(--ink-strong)" }}>VibeCode</h1>
+          <p className="text-base sm:text-lg mb-6 sm:mb-8" style={{ color: "var(--muted)", maxWidth: 480 }}>
             Describe the app you want. An AI agent builds it, deploys it, and you get a live app on FreeAppStore — in minutes.
           </p>
           <button onClick={signIn} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white" style={{ background: "var(--accent)" }}>
@@ -184,7 +184,7 @@ export function Create() {
   // Console view — My Apps with search
   if (view === "console") {
     return (
-      <div className="flex flex-col" style={{ height: "100dvh", overflow: "hidden" }}>
+      <div className="full-height-page flex flex-col" style={{ overflow: "hidden" }}>
         <div className="shrink-0"><Nav /></div>
         <MyAppsConsole
           projects={agent.projects}
@@ -200,7 +200,7 @@ export function Create() {
   }
 
   return (
-    <div className="flex flex-col" style={{ height: "100dvh", overflow: "hidden" }}>
+    <div className="full-height-page flex flex-col" style={{ overflow: "hidden" }}>
       {/* Desktop nav */}
       <div className="hidden md:block shrink-0"><Nav /></div>
 
