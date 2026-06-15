@@ -17,21 +17,49 @@ interface AppEntry {
 async function fetchApps(token: string | null): Promise<AppEntry[] | "unauthorized"> {
   if (!token) return "unauthorized";
   try {
-    const res = await fetch(`${API_BASE}/apps/mine`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.status === 401) return "unauthorized";
-    if (!res.ok) return [];
-    const data = (await res.json()) as { apps: { id: string; name?: string; ownerLogin: string; createdAt: number; category?: string | null; oneliner?: string | null }[] };
-    return (data.apps ?? [])
-      .map((a) => ({
-        id: a.id,
-        name: a.name || a.id,
-        createdAt: new Date(a.createdAt).toISOString(),
-        category: a.category,
-        description: a.oneliner,
-      }))
-      .sort((a, b) => a.id.localeCompare(b.id));
+    // Fetch both published apps AND deployed VibeCode sessions, then merge.
+    // Published apps come from the `apps` D1 table (ownership record created at publish).
+    // VibeCode sessions come from `agent_sessions` (created when the agent deploys).
+    // A user who built via VibeCode but hasn't published yet should still see their app.
+    const [appsRes, sessionsRes] = await Promise.all([
+      fetch(`${API_BASE}/apps/mine`, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(`${API_BASE}/agent/sessions?limit=100`, { headers: { Authorization: `Bearer ${token}` } }),
+    ]);
+
+    const publishedApps: AppEntry[] = [];
+    if (appsRes.ok) {
+      const data = (await appsRes.json()) as { apps: { id: string; name?: string; createdAt: number; category?: string | null; oneliner?: string | null }[] };
+      for (const a of data.apps ?? []) {
+        publishedApps.push({
+          id: a.id,
+          name: a.name || a.id,
+          createdAt: new Date(a.createdAt).toISOString(),
+          category: a.category,
+          description: a.oneliner,
+        });
+      }
+    } else if (appsRes.status === 401) {
+      return "unauthorized";
+    }
+
+    // Add deployed VibeCode sessions that aren't already in published apps
+    const publishedIds = new Set(publishedApps.map((a) => a.id));
+    if (sessionsRes.ok) {
+      const data = (await sessionsRes.json()) as { sessions: { id: string; name: string; appId?: string; deployed: boolean; createdAt: number }[] };
+      for (const s of data.sessions ?? []) {
+        if (s.deployed && s.appId && !publishedIds.has(s.appId)) {
+          publishedApps.push({
+            id: s.appId,
+            name: s.name || s.appId,
+            createdAt: new Date(s.createdAt).toISOString(),
+            category: null,
+            description: "Deployed via VibeCode (not yet published to store)",
+          });
+        }
+      }
+    }
+
+    return publishedApps.sort((a, b) => a.id.localeCompare(b.id));
   } catch {
     return [];
   }
