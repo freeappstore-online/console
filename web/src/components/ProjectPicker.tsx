@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { Project } from "../hooks/useProjects";
+import { API_URL, getSession } from "../lib/api";
 
 interface ProjectPickerProps {
   projects: Project[];
@@ -39,21 +40,22 @@ export function ProjectPicker({ projects, currentId, onSelect, onCreate, onClose
   useEffect(() => { if (searchOpen) searchRef.current?.focus(); }, [searchOpen]);
 
   useEffect(() => {
-    // Fetch ALL repos from the org via GitHub API (works for any creation method)
-    fetch("https://api.github.com/orgs/freeappstore-online/repos?per_page=100&sort=updated&direction=desc", {
-      headers: { Accept: "application/vnd.github+json" },
+    // Fetch only apps owned by the current user (from FAS API, not the whole org)
+    const s = getSession();
+    if (!s?.token) { setLoading(false); return; }
+    fetch(`${API_URL}/v1/apps/mine`, {
+      headers: { Authorization: `Bearer ${s.token}` },
     })
-      .then((r) => r.json())
-      .then((repos) => {
-        if (!Array.isArray(repos)) return;
-        const apps = repos
-          .filter((r: { name: string }) => !EXCLUDED.has(r.name) && !r.name.startsWith("template-"))
-          .map((r: { name: string; description?: string; pushed_at?: string }) => ({
-            id: r.name,
-            name: r.name,
-            description: r.description || "",
-            url: `https://${r.name}.freeappstore.online`,
-            updatedAt: r.pushed_at || "",
+      .then((r) => r.ok ? r.json() : { apps: [] })
+      .then((data: { apps?: { id: string; name?: string; oneliner?: string }[] }) => {
+        const apps = (data.apps ?? [])
+          .filter((a) => !EXCLUDED.has(a.id))
+          .map((a) => ({
+            id: a.id,
+            name: a.name || a.id,
+            description: a.oneliner || "",
+            url: `https://${a.id}.freeappstore.online`,
+            updatedAt: "",
           }));
         setOrgRepos(apps);
       })

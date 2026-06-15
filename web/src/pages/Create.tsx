@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AGENT_URL, getSession } from "../lib/api";
+import { AGENT_URL, API_URL, getSession } from "../lib/api";
 import { Nav } from "../components/Nav";
 import { ChatMessage } from "../components/ChatMessage";
 import { DeployLog } from "../components/DeployLog";
@@ -48,7 +48,8 @@ export function Create() {
 
   // Sync the URL's route id into the selected project.
   // The route id can be either a session UUID or an app slug.
-  // If it's an app slug, find the session for that app or create one.
+  // If it's an app slug, find the session for that app or create one
+  // (only if the user owns the app).
   const resolvedSlugRef = useRef<string | null>(null);
   useEffect(() => {
     if (!routeId) return;
@@ -66,18 +67,29 @@ export function Create() {
       resolvedSlugRef.current = routeId;
       navigate(`/create/${existing.id}`, { replace: true });
     } else {
+      // Verify the user owns this app before creating a session for it
       resolvedSlugRef.current = routeId;
-      const sessionId = agent.createProject(routeId, routeId);
-      // Import the app's source code from GitHub into the new session
       const s = getSession();
-      if (s?.token) {
-        fetch(`${AGENT_URL}/session/${sessionId}/import`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.token}` },
-          body: JSON.stringify({ appId: routeId }),
-        }).catch(() => { /* best-effort */ });
-      }
-      navigate(`/create/${sessionId}`, { replace: true });
+      if (!s?.token) { navigate("/create", { replace: true }); return; }
+      fetch(`${API_URL}/v1/apps/mine`, { headers: { Authorization: `Bearer ${s.token}` } })
+        .then((r) => r.ok ? r.json() : { apps: [] })
+        .then((data: { apps?: { id: string }[] }) => {
+          const owns = data.apps?.some((a) => a.id === routeId);
+          if (!owns) {
+            // User doesn't own this app — redirect to dashboard instead of creating a session
+            navigate("/", { replace: true });
+            return;
+          }
+          const sessionId = agent.createProject(routeId, routeId);
+          // Import the app's source code from GitHub into the new session
+          fetch(`${AGENT_URL}/session/${sessionId}/import`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.token}` },
+            body: JSON.stringify({ appId: routeId }),
+          }).catch(() => { /* best-effort */ });
+          navigate(`/create/${sessionId}`, { replace: true });
+        })
+        .catch(() => { navigate("/create", { replace: true }); });
     }
   }, [routeId, agent.currentProjectId, agent.projects, agent.projectsLoading, user, navigate]);
 
