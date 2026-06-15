@@ -100,7 +100,8 @@ function KvTab({ headers }: { headers: () => Record<string, string> }) {
 
   const deleteEntry = async (app: string, user: string, key: string) => {
     if (!confirm(`Delete KV entry "${key}" for user ${user} in ${app}?`)) return
-    await fetch(`${API}/admin/kv?app=${app}&user=${user}&key=${encodeURIComponent(key)}`, { method: 'DELETE', headers: headers() })
+    try { await fetch(`${API}/admin/kv?app=${app}&user=${user}&key=${encodeURIComponent(key)}`, { method: 'DELETE', headers: headers() }) }
+    catch { /* network error — reload shows current state */ }
     load()
   }
 
@@ -160,7 +161,8 @@ function CollectionsTab({ headers }: { headers: () => Record<string, string> }) 
 
   const deleteDoc = async (app: string, collection: string, id: string) => {
     if (!confirm(`Delete document ${id} from ${collection} in ${app}?`)) return
-    await fetch(`${API}/admin/collections?app=${app}&collection=${collection}&id=${id}`, { method: 'DELETE', headers: headers() })
+    try { await fetch(`${API}/admin/collections?app=${app}&collection=${collection}&id=${id}`, { method: 'DELETE', headers: headers() }) }
+    catch { /* network error */ }
     load()
   }
 
@@ -214,7 +216,8 @@ function CountersTab({ headers }: { headers: () => Record<string, string> }) {
 
   const deleteCounter = async (app: string, name: string) => {
     if (!confirm(`Delete counter "${name}" in ${app}?`)) return
-    await fetch(`${API}/admin/counters?app=${app}&name=${encodeURIComponent(name)}`, { method: 'DELETE', headers: headers() })
+    try { await fetch(`${API}/admin/counters?app=${app}&name=${encodeURIComponent(name)}`, { method: 'DELETE', headers: headers() }) }
+    catch { /* network error */ }
     load()
   }
 

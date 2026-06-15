@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { RolesManager } from './RolesManager'
 import { SecretsManager } from './SecretsManager'
 import { WebhooksManager } from './WebhooksManager'
@@ -197,7 +197,7 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
     return h
   }
 
-  useEffect(() => {
+  const loadEntries = useCallback(() => {
     setLoading(true)
     setExpanded(null)
     let url = ''
@@ -211,21 +211,14 @@ function AppDataView({ appId, getToken }: { appId: string; getToken: () => strin
       .finally(() => setLoading(false))
   }, [appId, tab])
 
+  useEffect(() => { loadEntries() }, [loadEntries])
+
   const deleteItem = async (params: string) => {
     if (!confirm('Delete this item?')) return
-    await fetch(`${API_BASE}/admin/${tab === 'collections' ? 'collections' : tab}?${params}`, { method: 'DELETE', headers: headers() })
-    // reload
-    setLoading(true)
-    setExpanded(null)
-    let url = ''
-    if (tab === 'kv') url = `${API_BASE}/admin/kv?app=${appId}&limit=100`
-    else if (tab === 'collections') url = `${API_BASE}/admin/collections?app=${appId}&limit=100`
-    else url = `${API_BASE}/admin/counters?app=${appId}&limit=200`
-    fetch(url, { headers: headers() })
-      .then(r => r.ok ? r.json() : { entries: [] })
-      .then(data => setEntries((data.entries ?? data.documents ?? data.counters ?? []) as Array<Record<string, unknown>>))
-      .catch(() => setEntries([]))
-      .finally(() => setLoading(false))
+    try {
+      await fetch(`${API_BASE}/admin/${tab === 'collections' ? 'collections' : tab}?${params}`, { method: 'DELETE', headers: headers() })
+    } catch { /* network error — reload will show current state */ }
+    loadEntries()
   }
 
   const loadKvValue = async (user: string, key: string) => {

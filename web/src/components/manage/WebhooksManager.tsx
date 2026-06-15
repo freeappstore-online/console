@@ -52,9 +52,11 @@ export function WebhooksManager({ appId, getToken }: Props) {
 
   const deleteWebhook = async (id: string) => {
     if (!confirm('Remove this webhook?')) return
-    const res = await fetch(`${API}/apps/${appId}/webhooks/${id}`, { method: 'DELETE', headers: headers() })
-    if (res.ok) load()
-    else setError('Failed to delete webhook')
+    try {
+      const res = await fetch(`${API}/apps/${appId}/webhooks/${id}`, { method: 'DELETE', headers: headers() })
+      if (res.ok) load()
+      else setError('Failed to delete webhook')
+    } catch { setError('Network error') }
   }
 
   const testWebhook = async (id: string) => {

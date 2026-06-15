@@ -64,16 +64,20 @@ export function SecretsManager({ appId, getToken }: Props) {
 
   const deleteSecret = async (name: string) => {
     if (!confirm(`Delete secret "${name}"? Any proxy rules using it will stop working.`)) return
-    const res = await fetch(`${API}/apps/${appId}/secrets/${name}`, { method: 'DELETE', headers: headers() })
-    if (res.ok) load()
-    else setError('Failed to delete secret')
+    try {
+      const res = await fetch(`${API}/apps/${appId}/secrets/${name}`, { method: 'DELETE', headers: headers() })
+      if (res.ok) load()
+      else setError('Failed to delete secret')
+    } catch { setError('Network error') }
   }
 
   const deleteRule = async (pattern: string) => {
     if (!confirm(`Remove allowlist rule for "${pattern}"?`)) return
-    const res = await fetch(`${API}/apps/${appId}/allowlist`, { method: 'DELETE', headers: headers(), body: JSON.stringify({ pattern }) })
-    if (res.ok) load()
-    else setError('Failed to delete rule')
+    try {
+      const res = await fetch(`${API}/apps/${appId}/allowlist`, { method: 'DELETE', headers: headers(), body: JSON.stringify({ pattern }) })
+      if (res.ok) load()
+      else setError('Failed to delete rule')
+    } catch { setError('Network error') }
   }
 
   if (loading) {
