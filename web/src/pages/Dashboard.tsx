@@ -173,7 +173,6 @@ export function Dashboard() {
                         {a.category && <p className="mt-0.5 text-xs" style={{ color: "var(--muted)" }}>{a.category}</p>}
                       </div>
                     </div>
-                    <DeployBadge appId={a.id} />
                   </button>
                 ))}
               </div>
@@ -213,54 +212,3 @@ function QuickLink({ href, label, desc }: { href: string; label: string; desc: s
   );
 }
 
-interface DeployInfo {
-  status: "success" | "failure" | "in_progress" | "unknown";
-  updatedAt: string | null;
-}
-
-function useDeployStatus(appId: string): DeployInfo {
-  const [info, setInfo] = useState<DeployInfo>({ status: "unknown", updatedAt: null });
-  useEffect(() => {
-    fetch(`https://api.github.com/repos/freeappstore-online/${appId}/actions/runs?per_page=1&status=completed`, {
-      headers: { Accept: "application/vnd.github+json" },
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        const run = data?.workflow_runs?.[0];
-        if (run) {
-          setInfo({
-            status: run.conclusion === "success" ? "success" : "failure",
-            updatedAt: run.updated_at,
-          });
-        }
-      })
-      .catch(() => { /* best-effort */ });
-  }, [appId]);
-  return info;
-}
-
-function DeployBadge({ appId }: { appId: string }) {
-  const deploy = useDeployStatus(appId);
-  if (deploy.status === "unknown") return null;
-  const labels: Record<string, string> = { success: "Live", failure: "Deploy failed", in_progress: "Deploying" };
-  const timeAgo = deploy.updatedAt ? formatTimeAgo(new Date(deploy.updatedAt)) : "";
-  return (
-    <div className="flex items-center gap-1.5 mt-1.5">
-      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={deploy.status === "success" ? { background: "var(--success)", color: "white" } : deploy.status === "failure" ? { background: "var(--error)", color: "white" } : { background: "var(--warning)", color: "white" }}>
-        {labels[deploy.status]}
-      </span>
-      {timeAgo && <span className="text-[10px]" style={{ color: "var(--muted)" }}>{timeAgo}</span>}
-    </div>
-  );
-}
-
-function formatTimeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return "just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}

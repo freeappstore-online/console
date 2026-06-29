@@ -18,15 +18,6 @@ interface AppAnalytics {
   totalEvents: number
 }
 
-interface DeployRun {
-  conclusion: string | null
-  status: string
-  updated_at: string
-  html_url: string
-  head_sha: string
-  name: string
-}
-
 interface VcqaIssue {
   severity: string
   message: string
@@ -55,7 +46,6 @@ type AppTab = 'overview' | 'data'
 export function AppDetail({ appId, appName, getToken, onBack }: Props) {
   const [appTab, setAppTab] = useState<AppTab>('overview')
   const [analytics, setAnalytics] = useState<AppAnalytics | null>(null)
-  const [deploys, setDeploys] = useState<DeployRun[]>([])
   const [loading, setLoading] = useState(true)
   const appUrl = `https://${appId}.freeappstore.online`
   const repoUrl = `https://github.com/freeappstore-online/${appId}`
@@ -71,15 +61,6 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
       .catch(() => { /* analytics fetch is best-effort */ })
       .finally(() => setLoading(false))
   }, [appId, getToken])
-
-  useEffect(() => {
-    fetch(`https://api.github.com/repos/freeappstore-online/${appId}/actions/runs?per_page=5`, {
-      headers: { Accept: 'application/vnd.github+json' },
-    })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.workflow_runs) setDeploys(data.workflow_runs) })
-      .catch(() => { /* deploy status is best-effort */ })
-  }, [appId])
 
   return (
     <div className="space-y-6">
@@ -113,27 +94,6 @@ export function AppDetail({ appId, appName, getToken, onBack }: Props) {
           <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-strong)] px-4 py-2.5 text-sm font-medium text-[var(--ink)] hover:bg-[var(--panel-hover)] no-underline min-h-[44px]">Source</a>
         </div>
       </div>
-
-      {deploys.length > 0 && (
-        <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6">
-          <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">Recent Deploys</h3>
-          <div className="space-y-2">
-            {deploys.map((d) => (
-              <a key={d.head_sha} href={d.html_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg hover:bg-[var(--panel-hover)] no-underline min-h-[44px]">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
-                    d.conclusion === 'success' ? 'bg-[var(--success)]' :
-                    d.conclusion === 'failure' ? 'bg-[var(--error)]' :
-                    d.status === 'in_progress' ? 'bg-[var(--warning)]' : 'bg-[var(--muted)]'
-                  }`} />
-                  <span className="text-sm text-[var(--ink)] truncate">{d.name}</span>
-                </div>
-                <span className="text-xs text-[var(--muted)] whitespace-nowrap flex-shrink-0">{formatTimeAgo(new Date(d.updated_at))}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
 
       {!loading && analytics && (
         <div className="grid grid-cols-2 gap-3">
@@ -299,7 +259,7 @@ function CodeHealth({ appId }: { appId: string }) {
   const [badgeError, setBadgeError] = useState(false)
 
   useEffect(() => {
-    fetch(`https://${appId}.freeappstore.online/.vcqa/report.json`)
+    fetch(`${API_BASE}/apps/${encodeURIComponent(appId)}/quality`)
       .then(r => r.ok ? r.json() : null)
       .then(data => setReport(data as VcqaReport | null))
       .catch(() => { /* vcqa report is optional */ })
@@ -342,7 +302,7 @@ function CodeHealth({ appId }: { appId: string }) {
         </div>
         {!badgeError && (
           <div className="ml-auto">
-            <img src={`https://${appId}.freeappstore.online/.vcqa/badge.svg`} alt={`vcqa ${report.grade} ${report.score}`} width={80} height={20} className="h-5" onError={() => setBadgeError(true)} />
+            <img src={`${API_BASE}/apps/${encodeURIComponent(appId)}/quality/badge`} alt={`vcqa ${report.grade} ${report.score}`} width={80} height={20} className="h-5" onError={() => setBadgeError(true)} />
           </div>
         )}
       </div>
@@ -390,17 +350,6 @@ function CodeHealth({ appId }: { appId: string }) {
       )}
     </div>
   )
-}
-
-function formatTimeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
 }
 
 function InfoCard({ label, value, href, mono }: { label: string; value: string; href?: string; mono?: boolean }) {
