@@ -4,6 +4,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  // Relative asset URLs so the build works under any path prefix — served both at
+  // console.freeappstore.online/ and proxied under freeappstore.online/app/.
+  // The actual prefix is resolved at runtime via the injected <base href> (see index.html).
+  base: "./",
   plugins: [react(), tailwindcss()],
   test: {
     environment: "jsdom",

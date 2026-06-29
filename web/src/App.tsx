@@ -8,12 +8,18 @@ import { Admin } from "./pages/Admin";
 import { AppKeys } from "./pages/AppKeys";
 import { Manage, DataAdmin } from "./pages/Manage";
 
+// Mount prefix from the <base href> injected in index.html: "/app/" when proxied via
+// freeappstore.online/app/, "/" on console.freeappstore.online. Router basename must match
+// so absolute route paths resolve under the prefix without escaping the proxy.
+const baseHref = document.querySelector("base")?.getAttribute("href") ?? "/";
+const basename = baseHref.replace(/\/$/, "") || undefined;
+
 export default function App() {
   const auth = useAuthProvider();
 
   return (
     <AuthContext.Provider value={auth}>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           {/* Dashboard — app list, stats */}
           <Route path="/" element={<Dashboard />} />
