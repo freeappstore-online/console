@@ -1,3 +1,6 @@
 node_modules
 dist
 web/dist
+.vibe-check
+test-results
+*.tsbuildinfo
