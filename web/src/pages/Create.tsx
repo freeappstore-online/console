@@ -115,6 +115,22 @@ export function Create() {
     if (!user) { setVaultKeys([]); return; }
     fetchVaultStatus().then(setVaultKeys);
   }, [user?.id]);
+  // Once the vault loads, if the selected provider has no usable key, switch to
+  // whichever provider DOES have a key — don't sit on an empty default. Runs once
+  // per load so it never fights a deliberate provider switch (e.g. to add a key).
+  const didAutoSelectRef = useRef(false);
+  useEffect(() => {
+    if (didAutoSelectRef.current || !user || vaultKeys.length === 0) return;
+    didAutoSelectRef.current = true;
+    const hasKey = (t: string) => vaultKeys.some((k) => k.provider === toVaultProvider(t));
+    const cfg = PROVIDERS.find((p) => p.type === provider);
+    if (cfg?.free || hasKey(provider) || getKey(provider)) return; // current already usable
+    const available = PROVIDERS.find((p) => p.free || hasKey(p.type));
+    if (available) {
+      setProvider(available.type);
+      setModel(MODEL_OPTIONS[available.type]?.[0]?.value || model);
+    }
+  }, [vaultKeys, user]);
   useEffect(() => { speech.cancel(); }, [agent.currentProjectId]);
 
   const vaultMap = new Map(vaultKeys.map((k) => [k.provider, k]));
